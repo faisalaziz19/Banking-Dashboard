@@ -1,20 +1,38 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext.jsx";
+import api from "../services/api.js";
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setError(""); // Clear error when user types
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login Form Submitted", formData);
-    // Add your login logic here
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await api.login(formData);
+      login(response.user, response.token);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,6 +45,11 @@ function LoginPage() {
         <h2 className="text-xl font-medium text-left text-white mb-6">
           Sign in to your account
         </h2>
+        {error && (
+          <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
         <div className="mb-4">
           <label className="block text-white mb-2" htmlFor="email">
             Email
@@ -35,7 +58,7 @@ function LoginPage() {
             type="email"
             id="email"
             name="email"
-            className="w-full p-2 border rounded bg-transparent"
+            className="w-full p-2 border rounded bg-transparent text-white"
             placeholder="abc@ltimindtree.com"
             value={formData.email}
             onChange={handleChange}
@@ -50,7 +73,7 @@ function LoginPage() {
             type="password"
             id="password"
             name="password"
-            className="w-full p-2 border rounded bg-transparent"
+            className="w-full p-2 border rounded bg-transparent text-white"
             value={formData.password}
             onChange={handleChange}
             required
@@ -58,9 +81,10 @@ function LoginPage() {
         </div>
         <button
           type="submit"
-          className="w-full py-2 bg-blue-500 text-white rounded-lg"
+          className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400 disabled:opacity-50"
+          disabled={loading}
         >
-          Sign in
+          {loading ? "Signing in..." : "Sign in"}
         </button>
         <p className="text-center text-white mt-4">
           New here?{" "}
