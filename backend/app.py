@@ -135,62 +135,33 @@ def login():
         }
     }), 200
 
+# Get all users (for admin)
 @app.route('/api/users', methods=['GET'])
-@jwt_required()
 def get_users():
-    # Get current user's identity
-    current_user = get_jwt_identity()
-    
-    # Check if user is admin
-    if current_user.get('role') != 'admin':
-        return jsonify({"error": "Unauthorized access"}), 403
+    users_data = read_users()  # Read the users data from the file
+    return jsonify(users_data["users"])  # Return the list of users directly
 
-    # Read and return all users (excluding password hashes)
-    users_data = read_users()
-    users_list = [{
-        "email": user['email'],
-        "fullName": user['fullName'],
-        "role": user['role']
-    } for user in users_data['users']]
-    
-    return jsonify({"users": users_list}), 200
-
+# Update user role (Admin Can)
 @app.route('/api/users/<email>/role', methods=['PUT'])
-@jwt_required()
 def update_user_role(email):
-    # Get current user's identity
-    current_user = get_jwt_identity()
-    
-    # Check if user is admin
-    if current_user.get('role') != 'admin':
-        return jsonify({"error": "Unauthorized access"}), 403
+    users_data = read_users()  # Read the users data from the file
+    users = users_data["users"]  # Access the list of users
 
-    data = request.get_json()
-    new_role = data.get('role')
-
-    # Validate new role
-    valid_roles = ["Business Leader", "Marketing Analyst", "pending", "admin"]
-    if new_role not in valid_roles:
-        return jsonify({"error": "Invalid role"}), 400
-
-    # Read users
-    users_data = read_users()
-    
-    # Find and update user
     user_found = False
-    for user in users_data['users']:
+
+    # Find the user and update the role
+    for user in users:
         if user['email'] == email:
-            user['role'] = new_role
+            user['role'] = request.json.get('role', user['role'])
             user_found = True
             break
 
-    if not user_found:
+    if user_found:
+        write_users(users_data)  # Write the updated users data to file
+        return jsonify({"message": "User role updated successfully"})
+    else:
         return jsonify({"error": "User not found"}), 404
 
-    # Save updated users
-    write_users(users_data)
-
-    return jsonify({"message": "User role updated successfully"}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
