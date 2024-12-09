@@ -3,14 +3,14 @@ from flask_cors import CORS
 import psycopg2
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS to allow requests from the React app
+CORS(app)  
 
 # Database connection details
 DB_CONFIG = {
-    'dbname': 'your_database_name',
-    'user': 'your_username',
-    'password': 'your_password',
-    'host': 'localhost',  # Use your database host
+    'dbname': '',
+    'user': '',
+    'password': '',
+    'host': 'localhost',  
     'port': '5432'
 }
 
