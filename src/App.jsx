@@ -5,7 +5,7 @@ import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import Dashboard from "./components/Dashboard";
 import { AuthProvider } from "./components/context/AuthContext";
-import { ProtectedRoute } from "./components/ProtectedRoute"; // Create a ProtectedRoute to handle navigation logic
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
   return (
