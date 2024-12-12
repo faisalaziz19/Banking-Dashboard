@@ -1,16 +1,16 @@
 {
-    "users": [
-        {
-            "email": "admin@ltimindtree.com",
-            "password": "$2b$12$pfBLlYKrvacTNhBp./kRqurUtgRG7MK6EGCt2.1Fs4OXPDNJpP2AG",
-            "fullName": "Admin User",
-            "role": "admin"
-        },
-        {
-            "email": "arpit@ltimindtree.com",
-            "password": "$2b$12$dtOt6N.CW5WgkWBwWGIiZuJS8.zsEDcUa4PHQrmjAxwO5v00VB6hq",
-            "fullName": "Arpit Yadav",
-            "role": "Business Leader"
-        }
-    ]
+  "users": [
+    {
+      "email": "admin@ltimindtree.com",
+      "password": "$2b$12$pfBLlYKrvacTNhBp./kRqurUtgRG7MK6EGCt2.1Fs4OXPDNJpP2AG",
+      "fullName": "Admin",
+      "role": "admin"
+    },
+    {
+      "email": "arpit@ltimindtree.com",
+      "password": "$2b$12$dtOt6N.CW5WgkWBwWGIiZuJS8.zsEDcUa4PHQrmjAxwO5v00VB6hq",
+      "fullName": "Arpit Yadav",
+      "role": "Business Leader"
+    }
+  ]
 }
