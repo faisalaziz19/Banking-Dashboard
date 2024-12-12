@@ -1,156 +1,96 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  Button,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-
+import React, { useState } from "react";
+import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
-import api from "../services/api";
+import ViewSidebarOutlinedIcon from "@mui/icons-material/ViewSidebarOutlined";
+import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [newRole, setNewRole] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await api.getUsers(); // Fetch users from API
-        setUsers(response); // Directly set the users array
-      } catch (error) {
-        console.error("Error fetching users", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user && user.role === "admin") {
-      fetchUsers();
-    } else {
-      setLoading(false); // If user is not admin, set loading to false
-    }
-  }, [user]);
-
-  const handleUpdateRole = async (email) => {
-    try {
-      const updatedUser = await api.updateUserRole(email, newRole); // Get updated user data
-
-      if (updatedUser) {
-        // Update the users list with the updated role for the specific user
-        setUsers((prevUsers) =>
-          prevUsers.map((u) =>
-            u.email === email ? { ...u, role: updatedUser.role } : u
-          )
-        );
-        setNewRole(""); // Reset the role dropdown
-        setSelectedUser(null); // Deselect the user
-
-        // Show an alert after successfull role updation
-        alert(`The role has been successfull changed.`); // Use updatedUser.role
-      }
-    } catch (error) {
-      console.error("Error updating role", error);
-    }
-  };
-
-  if (loading) {
-    return <Typography>Loading...</Typography>;
-  }
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <Box display="flex">
-      <Drawer
-        sx={{
-          width: 240,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: 240,
-            boxSizing: "border-box",
-          },
-        }}
-        variant="permanent"
-        anchor="left"
-      >
-        <List>
-          <ListItem button onClick={() => {}}>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem button onClick={() => logout()}>
-            <ListItemText primary="Logout" />
-          </ListItem>
-        </List>
-      </Drawer>
-
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          User Management
-        </Typography>
-        <Typography variant="h6" gutterBottom>
-          Update User Role
-        </Typography>
-        {users.length > 0 ? (
-          users.map((user) => (
-            <Box
-              key={user.email}
-              sx={{ display: "flex", alignItems: "center", mb: 2 }}
+    <div className="h-screen w-screen font-[Akshar] bg-[#0C0C0C]">
+      <div className="h-full w-full flex flex-col backdrop-blur-[20px] p-3">
+        {/* Top Bar */}
+        <div className="flex justify-between items-center inset-0 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] backdrop-blur-[20px] p-3 mb-3 rounded-lg">
+          <div className="flex items-center">
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className={`${
+                isSidebarCollapsed ? "mr-8" : "mr-12"
+              } p-2 rounded-md text-white`}
             >
-              <Typography variant="body1" sx={{ flexGrow: 1 }}>
-                {user.fullName} ({user.email})
-              </Typography>
-              {selectedUser === user.email ? (
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <FormControl fullWidth sx={{ width: 200 }}>
-                    <InputLabel>Role</InputLabel>
-                    <Select
-                      value={newRole}
-                      onChange={(e) => setNewRole(e.target.value)}
-                      label="Role"
-                    >
-                      <MenuItem value="Business Leader">
-                        Business Leader
-                      </MenuItem>
-                      <MenuItem value="Marketing Analyst">
-                        Marketing Analyst
-                      </MenuItem>
-                      <MenuItem value="pending">Pending</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <Button
-                    variant="contained"
-                    sx={{ ml: 2 }}
-                    onClick={() => handleUpdateRole(user.email)}
-                    disabled={!newRole}
-                  >
-                    Update
-                  </Button>
-                </Box>
-              ) : (
-                <Button
-                  variant="outlined"
-                  onClick={() => setSelectedUser(user.email)}
-                  sx={{ ml: 2 }}
+              <ViewSidebarOutlinedIcon />
+            </button>
+            <h1 className="text-2xl mr-16 font-semibold">LTIMindtree</h1>
+          </div>
+          <div className="flex items-center">
+            <span className="mr-4">Good Morning, {user?.fullName}</span>
+            <div className="w-10 h-10 rounded-full bg-white text-blue-600 flex items-center justify-center font-bold">
+              {user?.fullName?.[0]}
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex flex-grow">
+          {/* Sidebar */}
+          <div
+            className={`${
+              isSidebarCollapsed ? "w-14" : "w-60"
+            } transition-all duration-300 mr-3 inset-0 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] backdrop-blur-[20px] p-4 rounded-lg`}
+          >
+            <div className={`flex flex-col h-full`}>
+              {/* Menu Options */}
+              <div className="flex flex-col">
+                <Link
+                  to="/dashboard"
+                  className="mb-4 cursor-pointer font-extralight"
                 >
-                  Change Role
-                </Button>
-              )}
-            </Box>
-          ))
-        ) : (
-          <Typography>No users available</Typography>
-        )}
-      </Box>
-    </Box>
+                  <i className="text-lg pr-3">
+                    <GridViewOutlinedIcon />
+                  </i>{" "}
+                  {!isSidebarCollapsed && "Dashboard"}
+                </Link>
+                {user?.role === "admin" && (
+                  <Link
+                    to="/dashboard/userroles"
+                    className="mb-4 cursor-pointer font-extralight"
+                  >
+                    <i className="text-lg pr-3">
+                      <PersonOutlineOutlinedIcon />
+                    </i>{" "}
+                    {!isSidebarCollapsed && "User Roles"}
+                  </Link>
+                )}
+              </div>
+
+              {/* Logout Option */}
+              <div className="mt-auto">
+                <div
+                  onClick={logout}
+                  className="cursor-pointer text-white hover:text-red-400 font-extralight"
+                >
+                  <i className="text-lg pr-3">
+                    <LogoutOutlinedIcon />
+                  </i>{" "}
+                  {!isSidebarCollapsed && "Logout"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div
+            className={`flex-grow p-4 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300`}
+          >
+            <Outlet />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
