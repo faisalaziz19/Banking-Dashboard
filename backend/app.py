@@ -83,7 +83,7 @@ def signup():
         "email": email,
         "password": hashed_password.decode('utf-8'),
         "fullName": full_name,
-        "role": "pending"
+        "role": "Pending"
     }
 
     # Add user to database
@@ -116,7 +116,7 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
 
     # Check if user's role is still pending
-    if user['role'] == "pending":
+    if user['role'] == "Pending":
         return jsonify({"error": "Your account is pending approval. Please wait for role assignment."}), 403
 
     # Create access token
@@ -159,6 +159,56 @@ def update_user_role(email):
     if user_found:
         write_users(users_data)  # Write the updated users data to file
         return jsonify({"message": "User role updated successfully"})
+    else:
+        return jsonify({"error": "User not found"}), 404
+
+# Delete a user
+@app.route('/api/users/<email>', methods=['DELETE'])
+def delete_user(email):
+    users_data = read_users()  # Read current user data
+    users = users_data["users"]
+
+    # Find the user
+    user_to_delete = next((user for user in users if user['email'] == email), None)
+
+    if not user_to_delete:
+        return jsonify({"error": "User not found"}), 404
+
+    # Prevent deletion of admin users
+    if user_to_delete['role'] == "Admin":
+        return jsonify({"error": "Cannot delete Admin User"}), 403
+
+    # Remove the user
+    users_data['users'] = [user for user in users if user['email'] != email]
+    write_users(users_data)  # Update the file
+
+    return jsonify({"message": "User deleted successfully"}), 200
+
+
+# Update a user's full name
+@app.route('/api/users/<email>/name', methods=['PUT'])
+def update_user_name(email):
+    data = request.get_json()
+    new_name = data.get("fullName")
+
+    if not new_name:
+        return jsonify({"error": "New full name is required"}), 400
+
+    users_data = read_users()
+    users = users_data["users"]
+
+    user_found = False
+
+    # Find and update the user's name
+    for user in users:
+        if user['email'] == email:
+            user['fullName'] = new_name
+            user_found = True
+            break
+
+    if user_found:
+        write_users(users_data)
+        return jsonify({"message": "User name updated successfully"}), 200
     else:
         return jsonify({"error": "User not found"}), 404
 

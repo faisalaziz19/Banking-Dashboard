@@ -38,7 +38,7 @@ const api = {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Signup failed");
+        throw new Error(error.error || "Signup failed");
       }
 
       return await response.json();
@@ -95,6 +95,38 @@ const api = {
     } catch (error) {
       console.error("Error updating user role:", error);
       throw new Error("Failed to update role: " + error.message); // Enhanced error message
+    }
+  },
+
+  // Delete a user by email
+  deleteUser: async (email) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/users/${email}`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error deleting user:",
+        error.response?.data?.error || error.message
+      );
+      throw new Error(error.response?.data?.error || "Failed to delete user");
+    }
+  },
+
+  // Update a user's full name
+  updateUserName: async (email, fullName) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/users/${email}/name`, {
+        fullName,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error updating user name:",
+        error.response?.data?.error || error.message
+      );
+      throw new Error(
+        error.response?.data?.error || "Failed to update user name"
+      );
     }
   },
 };

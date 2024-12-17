@@ -25,7 +25,7 @@ const Dashboard = () => {
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
               className={`${
-                isSidebarCollapsed ? "mr-8" : "mr-12"
+                isSidebarCollapsed ? "mr-10" : "mr-14"
               } p-2 rounded-md text-white`}
             >
               <ViewSidebarOutlinedIcon />
@@ -67,7 +67,7 @@ const Dashboard = () => {
                   </i>{" "}
                   {!isSidebarCollapsed && "Dashboard"}
                 </Link>
-                {user?.role === "admin" && (
+                {user?.role === "Admin" && (
                   <Link
                     to="/dashboard/userroles"
                     className="mb-4 cursor-pointer font-extralight"

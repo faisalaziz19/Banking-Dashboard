@@ -1,16 +1,22 @@
 {
-  "users": [
-    {
-      "email": "admin@ltimindtree.com",
-      "password": "$2b$12$pfBLlYKrvacTNhBp./kRqurUtgRG7MK6EGCt2.1Fs4OXPDNJpP2AG",
-      "fullName": "Admin",
-      "role": "admin"
-    },
-    {
-      "email": "arpit@ltimindtree.com",
-      "password": "$2b$12$dtOt6N.CW5WgkWBwWGIiZuJS8.zsEDcUa4PHQrmjAxwO5v00VB6hq",
-      "fullName": "Arpit Yadav",
-      "role": "Business Leader"
-    }
-  ]
+    "users": [
+        {
+            "email": "admin@ltimindtree.com",
+            "password": "$2b$12$pfBLlYKrvacTNhBp./kRqurUtgRG7MK6EGCt2.1Fs4OXPDNJpP2AG",
+            "fullName": "Admin",
+            "role": "Admin"
+        },
+        {
+            "email": "arpit@ltimindtree.com",
+            "password": "$2b$12$DByS8ry/UaHjB1P.mfRl8ukvsmV9KWDAIog.XejlwYaRCjGXAbVda",
+            "fullName": "Arpit Yadav",
+            "role": "Marketing Analyst"
+        },
+        {
+            "email": "faisal@ltimindtree.com",
+            "password": "$2b$12$FncdSA/4oi3XbPNS2zuuW.TcHQujPC7a8dX4l.BdoL1NQqQ1Oiwu.",
+            "fullName": "Faisal Aziz",
+            "role": "Marketing Analyst"
+        }
+    ]
 }
