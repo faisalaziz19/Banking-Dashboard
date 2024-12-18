@@ -10,7 +10,7 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const currentDate = new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
+    weekday: "short",
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -37,8 +37,8 @@ const Dashboard = () => {
               <span className="text-[18px] font-normal">
                 Hey, {user?.fullName}
               </span>
-              <span className="text-[12px] font-extralight text-gray-400">
-                {currentDate}
+              <span className="text-[13px] font-extralight text-gray-400">
+                It's {currentDate}
               </span>
             </div>
             <div className="ml-4 w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-purple-600 text-2xl">
