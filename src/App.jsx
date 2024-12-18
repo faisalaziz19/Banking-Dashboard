@@ -28,7 +28,10 @@ function App() {
             }
           >
             {/* Nested Routes for Dashboard */}
-            <Route path="" element={<h1>Welcome to the Dashboard!</h1>} />
+            <Route
+              path=""
+              element={<h1 className="p-2">Welcome to the Dashboard!</h1>}
+            />
             <Route
               path="userroles"
               element={

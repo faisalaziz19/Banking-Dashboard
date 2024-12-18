@@ -95,7 +95,7 @@ const RoleUpdate = () => {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-2">
       <h2 className="text-2xl font-bold mb-4">User Management</h2>
 
       {error && (
@@ -119,7 +119,7 @@ const RoleUpdate = () => {
                 />
               ) : (
                 <>
-                  {user.fullName} ({user.email}){" | "}
+                  {user.fullName} | {user.email} {" | "}
                   <span className="text-gray-400 font-extralight">
                     {user.role}
                   </span>

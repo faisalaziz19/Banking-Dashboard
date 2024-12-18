@@ -32,7 +32,7 @@ const Dashboard = () => {
             </button>
             <h1 className="text-2xl mr-16 font-semibold">LTIMindtree</h1>
           </div>
-          <div className="flex items-center cursor-pointer bg-[#1C1C1C] text-white px-3 py-1 rounded-lg shadow-lg">
+          <div className="flex items-center cursor-pointer bg-[#1C1C1C] text-white px-3 py-1 rounded-lg mr-2">
             <div className="flex flex-col">
               <span className="text-[18px] font-normal">
                 Hey, {user?.fullName}
@@ -97,7 +97,7 @@ const Dashboard = () => {
 
           {/* Main Content */}
           <div
-            className={`flex-grow p-4 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300`}
+            className={`flex-grow p-2 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300`}
           >
             <Outlet />
           </div>
