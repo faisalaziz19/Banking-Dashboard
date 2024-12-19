@@ -4,6 +4,7 @@ import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SearchIcon from "@mui/icons-material/Search";
+import { Snackbar, Alert } from "@mui/material";
 
 const RoleUpdate = () => {
   const [users, setUsers] = useState([]);
@@ -15,6 +16,9 @@ const RoleUpdate = () => {
   const [editFullName, setEditFullName] = useState("");
   const [editingUser, setEditingUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("success");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -53,7 +57,9 @@ const RoleUpdate = () => {
         );
         setNewRole("");
         setSelectedUser(null);
-        alert(`Role updated successfully to ${newRole}.`);
+        setAlertMessage(`Role updated to ${newRole} successfully.`);
+        setAlertSeverity("success");
+        setAlertOpen(true);
       }
     } catch (error) {
       console.error("Error updating role", error);
@@ -68,13 +74,14 @@ const RoleUpdate = () => {
         setUsers((prevUsers) =>
           prevUsers.filter((user) => user.email !== email)
         );
-        alert("User deleted successfully.");
+        setAlertMessage("User deleted successfully.");
+        setAlertSeverity("success");
+        setAlertOpen(true);
       } catch (error) {
         console.error("Error deleting user", error);
-        setError("Sorry, can't delete an Admin User.");
-        setTimeout(() => {
-          setError("");
-        }, 2500);
+        setAlertMessage("Sorry, can't delete an Admin User.");
+        setAlertSeverity("error");
+        setAlertOpen(true);
       }
     }
   };
@@ -90,12 +97,19 @@ const RoleUpdate = () => {
         );
         setEditingUser(null);
         setEditFullName("");
-        alert("Full name updated successfully.");
+        setAlertMessage("Name updated successfully.");
+        setAlertSeverity("success");
+        setAlertOpen(true);
       }
     } catch (error) {
       console.error("Error updating full name", error);
       setError("Failed to update full name. Please try again.");
     }
+  };
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === "clickaway") return;
+    setAlertOpen(false);
   };
 
   const getRoleClass = (role) => {
@@ -161,10 +175,10 @@ const RoleUpdate = () => {
           <tbody className="bg-none divide-y divide-gray-200">
             {filteredUsers.map((user, index) => (
               <tr key={user.email} className="hover:bg-[#1C1C1C]">
-                <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-100 border-b border-[#3F3F3F]">
+                <td className="px-6 py-2 whitespace-nowrap text-base font-thin tracking-wide text-gray-100 border-b border-[#3F3F3F]">
                   {index + 1}
                 </td>
-                <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-100 border-b border-[#3F3F3F]">
+                <td className="px-6 py-2 whitespace-nowrap text-base font-thin tracking-wide text-gray-100 border-b border-[#3F3F3F]">
                   {editingUser === user.email ? (
                     <input
                       type="text"
@@ -177,11 +191,11 @@ const RoleUpdate = () => {
                     user.fullName
                   )}
                 </td>
-                <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-100 border-b border-[#3F3F3F]">
+                <td className="px-6 py-2 whitespace-nowrap text-base font-thin tracking-wide text-gray-100 border-b border-[#3F3F3F]">
                   {user.email}
                 </td>
                 <td
-                  className={`px-6 py-2 whitespace-nowrap text-sm border-b border-[#3F3F3F] ${getRoleClass(
+                  className={`px-6 py-2 whitespace-nowrap text-base font-thin tracking-wide border-b border-[#3F3F3F] ${getRoleClass(
                     user.role
                   )}`}
                 >
@@ -203,20 +217,20 @@ const RoleUpdate = () => {
                     user.role
                   )}
                 </td>
-                <td className="px-6 py-2 whitespace-nowrap text-sm border-b border-[#3F3F3F]">
+                <td className="px-6 py-2 whitespace-nowrap text-sm font-thin tracking-wide border-b border-[#3F3F3F]">
                   <div className="flex justify-end space-x-2">
                     {selectedUser === user.email ? (
                       <button
                         onClick={() => handleUpdateRole(user.email)}
                         disabled={!newRole}
-                        className="px-3 py-1 text-sm bg-blue-400 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                        className="px-3 py-1 text-base bg-blue-400 text-white rounded hover:bg-blue-700 disabled:opacity-50"
                       >
                         Update
                       </button>
                     ) : (
                       <button
                         onClick={() => setSelectedUser(user.email)}
-                        className="px-2 py-1 text-sm text-purple-400 bg-[#1C1C1C] rounded hover:bg-purple-400 hover:bg-opacity-30"
+                        className="px-2 py-1 text-base text-purple-400 bg-[#1C1C1C] rounded hover:bg-purple-400 hover:bg-opacity-30"
                       >
                         <ReplayOutlinedIcon />
                       </button>
@@ -226,7 +240,7 @@ const RoleUpdate = () => {
                       <button
                         onClick={() => handleUpdateFullName(user.email)}
                         disabled={!editFullName}
-                        className="px-3 py-1 text-sm bg-green-400 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                        className="px-3 py-1 text-base bg-green-400 text-white rounded hover:bg-green-700 disabled:opacity-50"
                       >
                         Save
                       </button>
@@ -236,7 +250,7 @@ const RoleUpdate = () => {
                           setEditingUser(user.email);
                           setEditFullName(user.fullName);
                         }}
-                        className="px-2 py-1 text-sm text-yellow-400 bg-[#1C1C1C] rounded hover:bg-yellow-400 hover:bg-opacity-30"
+                        className="px-2 py-1 text-base text-yellow-400 bg-[#1C1C1C] rounded hover:bg-yellow-400 hover:bg-opacity-30"
                       >
                         <EditOutlinedIcon className="w-4 h-4" />
                       </button>
@@ -244,7 +258,7 @@ const RoleUpdate = () => {
 
                     <button
                       onClick={() => handleDeleteUser(user.email)}
-                      className="px-2 py-1 text-sm text-red-400 bg-[#1C1C1C] rounded hover:bg-red-400 hover:bg-opacity-30"
+                      className="px-2 py-1 text-base text-red-400 bg-[#1C1C1C] rounded hover:bg-red-400 hover:bg-opacity-30"
                     >
                       <DeleteOutlinedIcon className="w-4 h-4" />
                     </button>
@@ -254,6 +268,23 @@ const RoleUpdate = () => {
             ))}
           </tbody>
         </table>
+
+        {/* Snackbar for success alert */}
+        <Snackbar
+          open={alertOpen}
+          autoHideDuration={5000}
+          onClose={handleCloseAlert}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleCloseAlert}
+            severity={alertSeverity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {alertMessage}
+          </Alert>
+        </Snackbar>
       </div>
 
       {filteredUsers.length === 0 && (
