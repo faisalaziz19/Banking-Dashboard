@@ -6,6 +6,7 @@ import bcrypt
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
+import re
 
 load_dotenv()
 
@@ -59,8 +60,18 @@ def initialize_admin_user():
 
 # Initialize the database and add admin user
 with app.app_context():
-    db.create_all()  # Ensure all tables are created
+    db.create_all()  
     initialize_admin_user()
+
+# Email regex pattern 
+EMAIL_REGEX = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+
+# List of allowed email domains
+ALLOWED_DOMAINS = [
+    "gmail.com",
+    "yahoo.com",
+    "outlook.com",
+]
 
 # Signup Route
 @app.route('/api/signup', methods=['POST'])
@@ -74,8 +85,18 @@ def signup():
     if not email or not password or not full_name:
         return jsonify({"error": "All fields are required"}), 400
 
+    # Password length validation
     if len(password) < 5:
         return jsonify({"error": "Password must be at least 5 characters long"}), 400
+    
+    # Email regex validation
+    if not re.match(EMAIL_REGEX, email):
+        return jsonify({"error": "Invalid email format"}), 400
+    
+    # Check if the domain is in the allowed list
+    domain = email.split('@')[-1]
+    if domain not in ALLOWED_DOMAINS:
+        return jsonify({"error": "Enter a valid email"}), 400
 
     # Check if email already exists
     if User.query.filter_by(email=email).first():
