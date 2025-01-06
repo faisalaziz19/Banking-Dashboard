@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 import os
@@ -131,10 +131,13 @@ def login():
         }
     }), 200
 
-# Get all users (for admin)
+# Get all users
 @app.route('/api/users', methods=['GET'])
-@jwt_required()
 def get_users():
+    # Log the request's Authorization header
+    token = request.headers.get('Authorization')
+    print(f"Authorization header: {token}")
+
     users = User.query.all()
     users_data = [{
         "id": user.id,
@@ -144,9 +147,8 @@ def get_users():
     } for user in users]
     return jsonify(users_data), 200
 
-# Update user role (Admin Only)
+# Update user role
 @app.route('/api/users/<email>/role', methods=['PUT'])
-@jwt_required()
 def update_user_role(email):
     user = User.query.filter_by(email=email).first()
     if not user:
@@ -161,9 +163,27 @@ def update_user_role(email):
 
     return jsonify({"message": "User role updated successfully"}), 200
 
+# Update user full name
+@app.route('/api/users/<email>/name', methods=['PUT'])
+def update_user_name(email):
+    # Query the database for the user
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Get the new full name from the request
+    new_name = request.json.get('fullName')
+    if not new_name:
+        return jsonify({"error": "New full name is required"}), 400
+
+    # Update the user's full name
+    user.full_name = new_name
+    db.session.commit()
+
+    return jsonify({"message": "User full name updated successfully"}), 200
+
 # Delete a user
 @app.route('/api/users/<email>', methods=['DELETE'])
-@jwt_required()
 def delete_user(email):
     user = User.query.filter_by(email=email).first()
     if not user:
