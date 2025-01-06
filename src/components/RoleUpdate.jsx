@@ -20,10 +20,11 @@ const RoleUpdate = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("success");
 
+  // Fetch users from the database
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await api.getUsers();
+        const response = await api.getUsers(); // Fetch from your backend API
         setUsers(response);
         setFilteredUsers(response);
       } catch (error) {
@@ -37,6 +38,7 @@ const RoleUpdate = () => {
     fetchUsers();
   }, []);
 
+  // Search functionality for filtering users by name or email
   useEffect(() => {
     const results = users.filter(
       (user) =>
@@ -48,7 +50,7 @@ const RoleUpdate = () => {
 
   const handleUpdateRole = async (email) => {
     try {
-      const updatedUser = await api.updateUserRole(email, newRole);
+      const updatedUser = await api.updateUserRole(email, newRole); // Update role through the API
       if (updatedUser) {
         setUsers((prevUsers) =>
           prevUsers.map((u) =>
@@ -68,9 +70,17 @@ const RoleUpdate = () => {
   };
 
   const handleDeleteUser = async (email) => {
+    const userToDelete = users.find((user) => user.email === email);
+    if (userToDelete.role === "Admin") {
+      setAlertMessage("Admin users cannot be deleted.");
+      setAlertSeverity("error");
+      setAlertOpen(true);
+      return;
+    }
+
     if (window.confirm(`Are you sure you want to delete ${email}?`)) {
       try {
-        await api.deleteUser(email);
+        await api.deleteUser(email); // Delete user through the API
         setUsers((prevUsers) =>
           prevUsers.filter((user) => user.email !== email)
         );
@@ -79,7 +89,7 @@ const RoleUpdate = () => {
         setAlertOpen(true);
       } catch (error) {
         console.error("Error deleting user", error);
-        setAlertMessage("Sorry, can't delete an Admin User.");
+        setAlertMessage("Error deleting user.");
         setAlertSeverity("error");
         setAlertOpen(true);
       }
@@ -88,7 +98,7 @@ const RoleUpdate = () => {
 
   const handleUpdateFullName = async (email) => {
     try {
-      const updatedUser = await api.updateUserName(email, editFullName);
+      const updatedUser = await api.updateUserName(email, editFullName); // Update full name via API
       if (updatedUser) {
         setUsers((prevUsers) =>
           prevUsers.map((u) =>
