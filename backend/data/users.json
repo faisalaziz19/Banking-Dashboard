@@ -7,12 +7,6 @@
             "role": "Admin"
         },
         {
-            "email": "arpit@ltimindtree.com",
-            "password": "$2b$12$DByS8ry/UaHjB1P.mfRl8ukvsmV9KWDAIog.XejlwYaRCjGXAbVda",
-            "fullName": "Arpit Yadav",
-            "role": "Marketing Analyst"
-        },
-        {
             "email": "faisal@ltimindtree.com",
             "password": "$2b$12$Tggv11O9vzZSlvcrNqfWs.HFWuIjMr5YwvHXqW/1m1oqoDSePSU4S",
             "fullName": "Faizal Aziz",

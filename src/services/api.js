@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:5000/api"; // Replace with your actual backend URL
+const BASE_URL = "http://127.0.0.1:5000/api"; // Ensure this matches your backend URL
 
 const api = {
   // Login method
@@ -47,7 +47,7 @@ const api = {
     }
   },
 
-  // Method to check if token is valid
+  // Method to validate token
   validateToken: async (token) => {
     try {
       const response = await fetch(`${BASE_URL}/auth/validate`, {
@@ -66,15 +66,13 @@ const api = {
   getUsers: async () => {
     try {
       const response = await axios.get(`${BASE_URL}/users`);
-      if (Array.isArray(response.data)) {
-        return response.data; // Return the array directly if the response is an array
-      } else {
-        console.error("Unexpected data format:", response);
-        throw new Error("Failed to fetch users: Unexpected data format");
-      }
+      return response.data; // Response is assumed to be an array of user objects
     } catch (error) {
-      console.error("Error fetching users:", error);
-      throw error; // Throw error if the request fails
+      console.error(
+        "Error fetching users:",
+        error.response?.data || error.message
+      );
+      throw new Error("Failed to fetch users");
     }
   },
 
@@ -85,16 +83,17 @@ const api = {
         role,
       });
 
-      // Make sure to check the structure of the response
       if (response && response.data && response.data.message) {
-        console.log("Role updated:", response.data.message); // Log the message or handle accordingly
-        return response.data; // You can return the response or data based on your needs
+        return response.data;
       } else {
         throw new Error("Unexpected response format");
       }
     } catch (error) {
-      console.error("Error updating user role:", error);
-      throw new Error("Failed to update role: " + error.message); // Enhanced error message
+      console.error(
+        "Error updating user role:",
+        error.response?.data || error.message
+      );
+      throw new Error("Failed to update role");
     }
   },
 
@@ -106,9 +105,9 @@ const api = {
     } catch (error) {
       console.error(
         "Error deleting user:",
-        error.response?.data?.error || error.message
+        error.response?.data || error.message
       );
-      throw new Error(error.response?.data?.error || "Failed to delete user");
+      throw new Error("Failed to delete user");
     }
   },
 
@@ -122,11 +121,9 @@ const api = {
     } catch (error) {
       console.error(
         "Error updating user name:",
-        error.response?.data?.error || error.message
+        error.response?.data || error.message
       );
-      throw new Error(
-        error.response?.data?.error || "Failed to update user name"
-      );
+      throw new Error("Failed to update user name");
     }
   },
 };
