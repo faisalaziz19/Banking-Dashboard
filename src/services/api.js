@@ -62,10 +62,13 @@ const api = {
     }
   },
 
-  // Get all users for the admin dashboard
-  getUsers: async () => {
+  // Get users based on role, defaulting to all users if no role is provided
+  getUsers: async (role = null) => {
     try {
-      const response = await axios.get(`${BASE_URL}/users`);
+      // Construct the URL with query parameter for role if provided
+      const url = role ? `${BASE_URL}/users?role=${role}` : `${BASE_URL}/users`;
+
+      const response = await axios.get(url);
       return response.data; // Response is assumed to be an array of user objects
     } catch (error) {
       console.error(

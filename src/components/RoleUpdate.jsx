@@ -5,6 +5,10 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Snackbar, Alert } from "@mui/material";
+import {
+  sendRoleAssignedEmail,
+  sendAccountDeletedEmail,
+} from "../services/emailService";
 
 const RoleUpdate = () => {
   const [users, setUsers] = useState([]);
@@ -50,8 +54,12 @@ const RoleUpdate = () => {
 
   const handleUpdateRole = async (email) => {
     try {
+      console.log("Updating role for:", email); // Log the email of the user
       const updatedUser = await api.updateUserRole(email, newRole); // Update role through the API
       if (updatedUser) {
+        console.log("Role updated in the backend:", updatedUser); // Log the updated user
+
+        // Update UI state
         setUsers((prevUsers) =>
           prevUsers.map((u) =>
             u.email === email ? { ...u, role: newRole } : u
@@ -59,6 +67,12 @@ const RoleUpdate = () => {
         );
         setNewRole("");
         setSelectedUser(null);
+
+        // Send the role assigned email after updating the user's role
+        console.log("Calling sendRoleAssignedEmail...");
+        await sendRoleAssignedEmail(email, newRole);
+
+        // Set alert state
         setAlertMessage(`Role updated to ${newRole} successfully.`);
         setAlertSeverity("success");
         setAlertOpen(true);
@@ -71,6 +85,7 @@ const RoleUpdate = () => {
 
   const handleDeleteUser = async (email) => {
     const userToDelete = users.find((user) => user.email === email);
+
     if (userToDelete.role === "Admin") {
       setAlertMessage("Admin users cannot be deleted.");
       setAlertSeverity("error");
@@ -84,6 +99,10 @@ const RoleUpdate = () => {
         setUsers((prevUsers) =>
           prevUsers.filter((user) => user.email !== email)
         );
+
+        // Send account deletion email
+        await sendAccountDeletedEmail(email);
+
         setAlertMessage("User deleted successfully.");
         setAlertSeverity("success");
         setAlertOpen(true);
