@@ -7,6 +7,7 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 import re
+import requests
 
 load_dotenv()
 
@@ -152,20 +153,25 @@ def login():
         }
     }), 200
 
-# Get all users
+# Get all users or filter by role
 @app.route('/api/users', methods=['GET'])
 def get_users():
-    # Log the request's Authorization header
-    token = request.headers.get('Authorization')
-    print(f"Authorization header: {token}")
+    role = request.args.get('role')  # Get the role query parameter
+    
+    if role:
+        # Filter users by the provided role
+        users = User.query.filter_by(role=role).all()
+    else:
+        # Get all users if no role is provided
+        users = User.query.all()
 
-    users = User.query.all()
     users_data = [{
         "id": user.id,
         "fullName": user.full_name,
         "email": user.email,
         "role": user.role
     } for user in users]
+
     return jsonify(users_data), 200
 
 # Update user role
@@ -218,6 +224,33 @@ def delete_user(email):
     db.session.commit()
 
     return jsonify({"message": "User deleted successfully"}), 200
+
+@app.route('/api/send-email', methods=['POST'])
+def send_email():
+    email_data = request.json
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer re_LEACPbCx_NfgwYEz6rPG6sFtfaZcrSV2S'  # Resend API Key
+    }
+    data = {
+        "from": "notification@dashboard-project-ay.site",
+        "to": email_data['to'],
+        "subject": email_data['subject'],
+        "html": email_data['html']
+    }
+
+    try:
+        # Sending the email through the Resend API
+        response = requests.post('https://api.resend.com/emails', json=data, headers=headers)
+
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        else:
+            return jsonify({"error": "Failed to send email"}), response.status_code
+
+    except Exception as e:
+        return jsonify({"error": "Internal server error"}), 500
+
 
 
 if __name__ == '__main__':

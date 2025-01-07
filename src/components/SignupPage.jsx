@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import {
+  sendWelcomeEmail,
+  notifyAdminsNewUser,
+} from "../services/emailService";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -32,8 +36,31 @@ function SignupPage() {
     }
 
     try {
+      // Perform signup
       await api.signup(formData);
       setSuccess("Registration successful! Please wait for admin approval.");
+
+      // Fetch the list of admin emails
+      const users = await api.getUsers();
+      console.log("Fetched users:", users); // Add this line to log users
+      const adminEmails = users
+        .filter((user) => user.role === "Admin")
+        .map((user) => user.email);
+      console.log("Admin emails:", adminEmails); // Log the admin emails
+
+      // Send email to new user
+      await sendWelcomeEmail(formData.email);
+
+      // Notify admins about the new user
+      if (adminEmails.length > 0) {
+        await notifyAdminsNewUser(adminEmails, {
+          fullName: formData.fullName,
+          email: formData.email,
+        });
+      } else {
+        console.warn("No admin emails found.");
+      }
+
       setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
       setError(err.message);
