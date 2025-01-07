@@ -11,6 +11,8 @@ import requests
 
 load_dotenv()
 
+resend_api_key = os.getenv('RESEND_API_KEY')
+
 app = Flask(__name__)
 CORS(app)
 
@@ -20,7 +22,7 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
 jwt = JWTManager(app)
 
 # Configure SQLAlchemy
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postroot@localhost:5432/BankProjectData"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
@@ -230,7 +232,7 @@ def send_email():
     email_data = request.json
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer re_LEACPbCx_NfgwYEz6rPG6sFtfaZcrSV2S'  # Resend API Key
+        'Authorization': f'Bearer {resend_api_key}'  # Use the API key from the environment variable
     }
     data = {
         "from": "notification@dashboard-project-ay.site",
@@ -239,19 +241,15 @@ def send_email():
         "html": email_data['html']
     }
 
-    try:
-        # Sending the email through the Resend API
-        response = requests.post('https://api.resend.com/emails', json=data, headers=headers)
+    # Make the request to the Resend API
+    response = requests.post('https://api.resend.com/emails', json=data, headers=headers)
+    print(f"Resend response status: {response.status_code}")  # Log the response status
 
-        if response.status_code == 200:
-            return jsonify(response.json()), 200
-        else:
-            return jsonify({"error": "Failed to send email"}), response.status_code
-
-    except Exception as e:
-        return jsonify({"error": "Internal server error"}), 500
-
-
+    if response.status_code == 200:
+        return jsonify(response.json()), 200
+    else:
+        print(f"Error sending email: {response.text}")  # Log the error
+        return jsonify({"error": "Failed to send email"}), response.status_code
 
 if __name__ == '__main__':
     app.run(debug=True)
