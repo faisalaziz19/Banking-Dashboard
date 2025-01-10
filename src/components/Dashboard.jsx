@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import ViewSidebarOutlinedIcon from "@mui/icons-material/ViewSidebarOutlined";
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
@@ -15,6 +15,9 @@ const Dashboard = () => {
     month: "short",
     year: "numeric",
   });
+
+  const location = useLocation(); // Get the current location
+  const isUserRolesRoute = location.pathname === "/dashboard/userroles"; // Check if route is /dashboard/userroles
 
   return (
     <div className="h-screen w-screen font-[Akshar] bg-[#0C0C0C]">
@@ -96,11 +99,15 @@ const Dashboard = () => {
           </div>
 
           {/* Main Content */}
-          <div
-            className={`flex-grow p-2 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300`}
-          >
+          {isUserRolesRoute ? (
+            <div
+              className={`flex-grow p-2 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300`}
+            >
+              <Outlet />
+            </div>
+          ) : (
             <Outlet />
-          </div>
+          )}
         </div>
       </div>
     </div>
