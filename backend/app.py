@@ -1,13 +1,19 @@
+from typing import cast
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import text
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import extract, func
 import bcrypt
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
 import re
 import requests
+from decimal import Decimal
+
 
 load_dotenv()
 
@@ -35,6 +41,19 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(50), default="Pending")
+
+class Chart(db.Model):
+    __tablename__ = 'charts'
+    chart_id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(255))
+    allowed_roles = db.Column(ARRAY(db.String))
+
+class Transaction(db.Model):
+    __tablename__ = 'transaction'
+    transactionid = db.Column(db.Integer, primary_key=True)
+    transactiondate = db.Column(db.DateTime)
+    transactionamount = db.Column(db.Numeric)
+    channel = db.Column(db.String)  # 'Online', 'Debit Card', 'Credit Card'
 
 # Helper function to initialize default admin user
 def initialize_admin_user():
@@ -227,6 +246,7 @@ def delete_user(email):
 
     return jsonify({"message": "User deleted successfully"}), 200
 
+#Email service
 @app.route('/api/send-email', methods=['POST'])
 def send_email():
     email_data = request.json
@@ -250,6 +270,89 @@ def send_email():
     else:
         print(f"Error sending email: {response.text}")  # Log the error
         return jsonify({"error": "Failed to send email"}), response.status_code
+
+from sqlalchemy.sql import text
+
+@app.route('/api/get-charts', methods=['GET'])
+def get_charts():
+    role = request.args.get('role')
+    if not role:
+        return jsonify({"error": "Role parameter is required"}), 400
+
+    try:
+        query = text("SELECT * FROM charts WHERE allowed_roles @> ARRAY[:role]::TEXT[]")
+        result = db.session.execute(query, {"role": role})
+
+        charts_data = [
+            {"chart_id": row.chart_id, "description": row.description}
+            for row in result
+        ]
+        return jsonify(charts_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/get-transaction-data', methods=['GET'])
+def get_transaction_data():
+    year = request.args.get('year')
+
+    if not year:
+        return jsonify({"error": "Year parameter is missing"}), 400
+
+    try:
+        # Query to fetch transaction data grouped by month and channel
+        data = db.session.query(
+            extract('month', Transaction.transactiondate).label('month'),
+            Transaction.channel,
+            func.sum(Transaction.transactionamount).label('total_amount')
+        ).filter(
+            extract('year', Transaction.transactiondate) == int(year)
+        ).group_by(
+            extract('month', Transaction.transactiondate),
+            Transaction.channel
+        ).all()
+
+        # Debugging: Log the fetched data
+        print(f"Fetched transaction data: {data}")
+        
+        # Check if no data is found
+        if not data:
+            return jsonify({"error": "No data found for the given year"}), 404
+
+        # Initialize monthly data with 0 for all channels
+        monthly_data = {month: {"Online": 0, "Debit Card": 0, "Credit Card": 0, "ATM": 0} for month in range(1, 13)}
+        month_mapping = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+                         7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
+
+        for row in data:
+            month = int(row.month)
+            channel = row.channel
+            total_amount = float(row.total_amount) if isinstance(row.total_amount, Decimal) else row.total_amount
+
+            # Process valid channels
+            if channel not in monthly_data[month]:
+                print(f"Ignoring invalid channel: {channel} for month {month}")
+                continue
+
+            monthly_data[month][channel] = total_amount  # Converting to float for JSON response
+
+        # Populate the result
+        result = {"months": [], "online": [], "debitCard": [], "creditCard": [], "atm": []}
+        for month, values in monthly_data.items():
+            result["months"].append(month_mapping[month])
+            result["online"].append(values["Online"])
+            result["debitCard"].append(values["Debit Card"])
+            result["creditCard"].append(values["Credit Card"])
+            result["atm"].append(values["ATM"])  # Add ATM channel data
+
+        # Debugging: Log the result before returning
+        print(f"Returning result: {result}")
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"Error fetching transaction data: {e}")
+        return jsonify({"error": "Failed to fetch transaction data"}), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

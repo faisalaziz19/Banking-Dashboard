@@ -129,6 +129,36 @@ const api = {
       throw new Error("Failed to update user name");
     }
   },
+
+  getChartsForUser: async (role) => {
+    try {
+      const response = await fetch(`${BASE_URL}/get-charts?role=${role}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch charts");
+      }
+      const charts = await response.json();
+      return charts;
+    } catch (error) {
+      console.error("Error fetching charts:", error);
+      return [];
+    }
+  },
+
+  getTransactionData: async (year) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/get-transaction-data?year=${year}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch transaction data");
+      }
+      const data = await response.json();
+      return data; // Return the data in the desired format
+    } catch (error) {
+      console.error("Error fetching transaction data:", error);
+      return []; // Return an empty array or some default value if error occurs
+    }
+  },
 };
 
 export default api;

@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import ViewSidebarOutlinedIcon from "@mui/icons-material/ViewSidebarOutlined";
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import api from "../services/api";
+import TransactionLineChart from "./charts/TransactionLineChart";
+// Import API function for fetching charts
+// Example chart
+// Add more chart imports as needed
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [charts, setCharts] = useState([]);
   const currentDate = new Date().toLocaleDateString("en-GB", {
     weekday: "short",
     day: "2-digit",
@@ -16,8 +22,23 @@ const Dashboard = () => {
     year: "numeric",
   });
 
-  const location = useLocation(); // Get the current location
-  const isUserRolesRoute = location.pathname === "/dashboard/userroles"; // Check if route is /dashboard/userroles
+  const location = useLocation();
+  const isUserRolesRoute = location.pathname === "/dashboard/userroles";
+
+  useEffect(() => {
+    const fetchCharts = async () => {
+      if (user) {
+        try {
+          const fetchedCharts = await api.getChartsForUser(user.role); // Fetch charts based on the role
+          setCharts(fetchedCharts);
+        } catch (error) {
+          console.error("Error fetching charts:", error);
+        }
+      }
+    };
+
+    fetchCharts();
+  }, [user]); // Fetch charts when the user is updated
 
   return (
     <div className="h-screen w-screen font-[Akshar] bg-[#0C0C0C]">
@@ -106,7 +127,31 @@ const Dashboard = () => {
               <Outlet />
             </div>
           ) : (
-            <Outlet />
+            <div className="flex-grow p-2 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
+              {/* Render charts dynamically based on the user's role */}
+              {charts.length === 0 ? (
+                <p>No charts available for your role.</p>
+              ) : (
+                charts.map((chart) => {
+                  switch (chart.chart_id) {
+                    case 1:
+                      return (
+                        <TransactionLineChart
+                          key={chart.chart_id}
+                          chartId={chart.chart_id}
+                        />
+                      );
+                    // Add more cases for other chart components
+                    default:
+                      return (
+                        <div key={chart.chart_id}>
+                          Chart {chart.chart_id} not implemented.
+                        </div>
+                      );
+                  }
+                })
+              )}
+            </div>
           )}
         </div>
       </div>
