@@ -4,14 +4,18 @@ import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import Dashboard from "./components/Dashboard";
-import RoleUpdate from "./components/RoleUpdate"; // Assuming you have a component for User Roles
+import RoleUpdate from "./components/RoleUpdate";
 import { AuthProvider } from "./components/context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
+      <AuthProvider
+        authorizationParams={{
+          redirect_uri: window.location.origin,
+        }}
+      >
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
