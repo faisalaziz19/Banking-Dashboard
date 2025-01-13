@@ -35,15 +35,16 @@ const TransactionLineChart = ({ chartId }) => {
   }
 
   return (
-    <div>
-      <h2>Monthly Transactions for {year}</h2>
-
-      {/* Dropdown to select year */}
-      <select onChange={(e) => setYear(e.target.value)} value={year}>
-        <option value="2022">2022</option>
-        <option value="2023">2023</option>
-        <option value="2024">2024</option>
-      </select>
+    <div className="bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
+      <div className="flex justify-between">
+        <h2>Monthly Transactions for {year}</h2>
+        {/* Dropdown to select year */}
+        <select onChange={(e) => setYear(e.target.value)} value={year}>
+          <option value="2022">2022</option>
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+        </select>
+      </div>
 
       <LineChart
         width={500}

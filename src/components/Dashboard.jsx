@@ -41,8 +41,8 @@ const Dashboard = () => {
   }, [user]); // Fetch charts when the user is updated
 
   return (
-    <div className="h-screen w-screen font-[Akshar] bg-[#0C0C0C]">
-      <div className="h-full w-full flex flex-col backdrop-blur-[20px] p-3">
+    <div className="h-full w-full font-[Akshar] bg-[#0C0C0C]">
+      <div className="h-full w-auto flex flex-col backdrop-blur-[20px] p-3">
         {/* Top Bar */}
         <div className="flex justify-between items-center inset-0 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] backdrop-blur-[20px] p-[6px] mb-3 rounded-lg">
           <div className="flex items-center">
@@ -72,7 +72,7 @@ const Dashboard = () => {
         </div>
 
         {/* Content */}
-        <div className="flex flex-grow">
+        <div className="w-full flex flex-grow">
           {/* Sidebar */}
           <div
             className={`${
@@ -127,7 +127,8 @@ const Dashboard = () => {
               <Outlet />
             </div>
           ) : (
-            <div className="flex-grow p-2 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
+            // <div className="flex-grow p-2 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
+            <div className="flex">
               {/* Render charts dynamically based on the user's role */}
               {charts.length === 0 ? (
                 <p>No charts available for your role.</p>
@@ -136,10 +137,20 @@ const Dashboard = () => {
                   switch (chart.chart_id) {
                     case 1:
                       return (
-                        <TransactionLineChart
-                          key={chart.chart_id}
-                          chartId={chart.chart_id}
-                        />
+                        <div className="flex flex-wrap">
+                          <TransactionLineChart
+                            key={chart.chart_id}
+                            chartId={chart.chart_id}
+                          />
+                          <TransactionLineChart
+                            key={chart.chart_id}
+                            chartId={chart.chart_id}
+                          />
+                          <TransactionLineChart
+                            key={chart.chart_id}
+                            chartId={chart.chart_id}
+                          />
+                        </div>
                       );
                     // Add more cases for other chart components
                     default:
@@ -152,6 +163,7 @@ const Dashboard = () => {
                 })
               )}
             </div>
+            // </div>
           )}
         </div>
       </div>
