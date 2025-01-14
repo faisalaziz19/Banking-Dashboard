@@ -55,6 +55,13 @@ class Transaction(db.Model):
     transactionamount = db.Column(db.Numeric)
     channel = db.Column(db.String)  # 'Online', 'Debit Card', 'Credit Card'
 
+class Loan(db.Model):
+    __tablename__ = 'loan'
+    loanid = db.Column(db.Integer, primary_key=True)
+    loantype = db.Column(db.String)  # 'Home', 'Auto', 'Personal'
+    loanamount = db.Column(db.Numeric)  # Loan amount
+    startdate = db.Column(db.DateTime)  # Start date of the loan
+
 # Helper function to initialize default admin user
 def initialize_admin_user():
     admin_email = "ayadav1201@gmail.com"
@@ -352,6 +359,44 @@ def get_transaction_data():
         print(f"Error fetching transaction data: {e}")
         return jsonify({"error": "Failed to fetch transaction data"}), 500
 
+@app.route('/api/get-loan-data', methods=['GET'])
+def get_loan_data():
+    year = request.args.get('year')
+    if not year:
+        return jsonify({"error": "Year parameter is missing"}), 400
+
+    try:
+        # Query to fetch loan data grouped by loantype for the given year
+        data = db.session.query(
+            Loan.loantype,
+            func.count(Loan.loanid).label('loan_count'),
+            func.sum(Loan.loanamount).label('total_loan_amount')
+        ).filter(
+            extract('year', Loan.startdate) == int(year)
+        ).group_by(
+            Loan.loantype
+        ).all()
+
+        # Check if no data is found
+        if not data:
+            return jsonify({"error": f"No Loans/Loan Data not available for year {year}"}), 404
+
+        result = {
+            "loanTypes": [],
+            "loanCounts": [],
+            "loanAmounts": []
+        }
+
+        for row in data:
+            result["loanTypes"].append(row.loantype)
+            result["loanCounts"].append(row.loan_count)
+            result["loanAmounts"].append(row.total_loan_amount)
+
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"Error fetching loan data: {e}")
+        return jsonify({"error": "Failed to fetch loan data"}), 500
 
 
 if __name__ == '__main__':

@@ -159,6 +159,23 @@ const api = {
       return []; // Return an empty array or some default value if error occurs
     }
   },
+
+  getLoanData: async (year) => {
+    try {
+      const response = await fetch(`${BASE_URL}/get-loan-data?year=${year}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.error) {
+          throw new Error(errorData.error); // Throw the error message from the backend
+        }
+      }
+      const data = await response.json();
+      return data; // Return the data in the desired format
+    } catch (error) {
+      console.error("Error fetching loan data:", error);
+      return { error: error.message }; // Return error message to be displayed to the user
+    }
+  },
 };
 
 export default api;

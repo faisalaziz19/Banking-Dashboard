@@ -7,9 +7,7 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import api from "../services/api";
 import TransactionLineChart from "./charts/TransactionLineChart";
-// Import API function for fetching charts
-// Example chart
-// Add more chart imports as needed
+import LoanPieChart from "./charts/LoanPieChart";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -42,7 +40,7 @@ const Dashboard = () => {
 
   return (
     <div className="h-full w-full font-[Akshar] bg-[#0C0C0C]">
-      <div className="h-full w-auto flex flex-col backdrop-blur-[20px] p-3">
+      <div className="h-full w-screen flex flex-col backdrop-blur-[20px] p-3">
         {/* Top Bar */}
         <div className="flex justify-between items-center inset-0 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] backdrop-blur-[20px] p-[6px] mb-3 rounded-lg">
           <div className="flex items-center">
@@ -137,16 +135,17 @@ const Dashboard = () => {
                   switch (chart.chart_id) {
                     case 1:
                       return (
-                        <div className="flex flex-wrap">
+                        <div className="flex flex-wrap h-10">
                           <TransactionLineChart
                             key={chart.chart_id}
                             chartId={chart.chart_id}
                           />
-                          <TransactionLineChart
-                            key={chart.chart_id}
-                            chartId={chart.chart_id}
-                          />
-                          <TransactionLineChart
+                        </div>
+                      );
+                    case 2:
+                      return (
+                        <div className="flex flex-wrap h-10">
+                          <LoanPieChart
                             key={chart.chart_id}
                             chartId={chart.chart_id}
                           />

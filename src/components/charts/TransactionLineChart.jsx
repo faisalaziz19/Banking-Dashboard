@@ -9,7 +9,7 @@ const TransactionLineChart = ({ chartId }) => {
     debitCard: [],
     creditCard: [],
   });
-  const [year, setYear] = useState("2023"); // Default year
+  const [year, setYear] = useState("2024"); // Default year
 
   useEffect(() => {
     api
@@ -35,20 +35,23 @@ const TransactionLineChart = ({ chartId }) => {
   }
 
   return (
-    <div className="bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
+    <div className="pt-5 pr-5 pl-5 mr-3 mb-3 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
       <div className="flex justify-between">
-        <h2>Monthly Transactions for {year}</h2>
+        <div className="text-xl">Monthly Transactions for {year}</div>
         {/* Dropdown to select year */}
-        <select onChange={(e) => setYear(e.target.value)} value={year}>
+        <select
+          className="rounded-md bg-[#1C1C1C]"
+          onChange={(e) => setYear(e.target.value)}
+          value={year}
+        >
           <option value="2022">2022</option>
           <option value="2023">2023</option>
           <option value="2024">2024</option>
         </select>
       </div>
-
       <LineChart
         width={500}
-        height={300}
+        height={250}
         series={[
           {
             data: online,
@@ -64,6 +67,17 @@ const TransactionLineChart = ({ chartId }) => {
           },
         ]}
         xAxis={[{ scaleType: "point", data: months }]} // Use months as x-axis data
+        slotProps={{
+          legend: {
+            direction: "row",
+            position: { vertical: "top", horizontal: "middle" },
+            padding: 10,
+            labelStyle: {
+              fontSize: 14,
+              fill: "white",
+            },
+          },
+        }}
       />
     </div>
   );
