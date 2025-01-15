@@ -176,6 +176,35 @@ const api = {
       return { error: error.message }; // Return error message to be displayed to the user
     }
   },
+
+  getCountries: async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/get-countries`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch countries");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      return { error: error.message };
+    }
+  },
+
+  getCustomerLineChartData: async (country = null) => {
+    try {
+      const url = country
+        ? `${BASE_URL}/get-customer-chart-data?country=${country}`
+        : `${BASE_URL}/get-customer-chart-data`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch chart data");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      return { error: error.message };
+    }
+  },
 };
 
 export default api;

@@ -62,6 +62,28 @@ class Loan(db.Model):
     loanamount = db.Column(db.Numeric)  # Loan amount
     startdate = db.Column(db.DateTime)  # Start date of the loan
 
+class Account(db.Model):
+    __tablename__ = 'account'
+    accountid = db.Column(db.Integer, primary_key=True)  # Primary key for the account
+    customerid = db.Column(db.Integer, db.ForeignKey('customer.customerid'), nullable=False)  # Foreign key reference to Customer
+    accounttype = db.Column(db.String(50), nullable=False)  # Type of account (e.g., Savings, Current)
+    opendate = db.Column(db.Date, nullable=False)  # Date when the account was opened
+    # Define relationship to Customer
+    customer = db.relationship('Customer', backref='accounts', lazy=True)
+
+
+class Customer(db.Model):
+    __tablename__ = 'customer'
+    customerid = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(225), nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    gender = db.Column(db.String(1), nullable=False)  # M/F/O for Male/Female/Other
+    country = db.Column(db.String(30), nullable=False)
+    zone = db.Column(db.String(30), nullable=False)
+    incomelevel = db.Column(db.String(50), nullable=True)
+    customersegment = db.Column(db.String(50), nullable=True)
+    riskrating = db.Column(db.Numeric(5, 2), nullable=True)
+
 # Helper function to initialize default admin user
 def initialize_admin_user():
     admin_email = "ayadav1201@gmail.com"
@@ -397,6 +419,61 @@ def get_loan_data():
     except Exception as e:
         print(f"Error fetching loan data: {e}")
         return jsonify({"error": "Failed to fetch loan data"}), 500
+
+@app.route('/api/get-countries', methods=['GET'])
+def get_countries():
+    try:
+        countries = db.session.query(Customer.country).distinct().all()
+        country_list = [country[0] for country in countries]
+        return jsonify(country_list)
+    except Exception as e:
+        print(f"Error in get-countries: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route('/api/get-customer-chart-data', methods=['GET'])
+def get_customer_chart_data():
+    try:
+        country_filter = request.args.get('country', None)
+        zones = ["North", "South", "East", "West", "Central"]  # List of all zones
+
+        # Fetch the data
+        query = db.session.query(
+            func.extract('year', Account.opendate).label('year'),
+            Customer.zone,  # Use lowercase 'zone'
+            func.count(Customer.customerid).label('customer_count')
+        ).join(Customer, Account.customerid == Customer.customerid)
+
+        if country_filter:
+            query = query.filter(Customer.country == country_filter)
+
+        query = query.group_by(func.extract('year', Account.opendate), Customer.zone)
+        result = query.all()
+
+        # Process the result into the required format
+        data = {}
+        for row in result:
+            year = int(row.year)
+            zone = row.zone
+            if year not in data:
+                data[year] = {z: 0 for z in zones}  # Initialize all zones with 0
+            data[year][zone] = row.customer_count  # Update with actual data
+
+        # Ensure all years and zones are accounted for
+        all_years = sorted(set(int(row.year) for row in result))
+        for year in all_years:
+            if year not in data:
+                data[year] = {z: 0 for z in zones}  # Add missing years with all zones set to 0
+            else:
+                for zone in zones:
+                    if zone not in data[year]:
+                        data[year][zone] = 0  # Add missing zones for existing years
+
+        return jsonify(data)
+
+    except Exception as e:
+        print(f"Error in get-customer-chart-data: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
 
 
 if __name__ == '__main__':

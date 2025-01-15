@@ -8,6 +8,7 @@ import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import api from "../services/api";
 import TransactionLineChart from "./charts/TransactionLineChart";
 import LoanPieChart from "./charts/LoanPieChart";
+import CustomerLineChart from "./charts/CustomerLineChart";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -146,6 +147,15 @@ const Dashboard = () => {
                       return (
                         <div className="flex flex-wrap h-10">
                           <LoanPieChart
+                            key={chart.chart_id}
+                            chartId={chart.chart_id}
+                          />
+                        </div>
+                      );
+                    case 3:
+                      return (
+                        <div className="flex flex-wrap h-10">
+                          <CustomerLineChart
                             key={chart.chart_id}
                             chartId={chart.chart_id}
                           />
