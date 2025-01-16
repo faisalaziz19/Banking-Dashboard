@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import re
 import requests
 from decimal import Decimal
+from huggingface_hub import InferenceClient
 
 
 load_dotenv()
@@ -21,6 +22,10 @@ resend_api_key = os.getenv('RESEND_API_KEY')
 
 app = Flask(__name__)
 CORS(app)
+
+#HUGGINGFACE_API_KEY SETUP
+HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
+client = InferenceClient(api_key=HF_API_KEY)
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
@@ -83,6 +88,42 @@ class Customer(db.Model):
     incomelevel = db.Column(db.String(50), nullable=True)
     customersegment = db.Column(db.String(50), nullable=True)
     riskrating = db.Column(db.Numeric(5, 2), nullable=True)
+
+# Route to generate insights
+@app.route('/generate-insights', methods=['POST'])
+def generate_insights():
+    try:
+        # Extract country name and chart data from the request
+        data = request.json
+        country = data.get('country', 'all countries')
+        chart_data = data.get('chart_data', {})
+
+        if not chart_data:
+            return jsonify({'error': 'No chart data provided'}), 400
+
+        # Prepare the prompt for the Hugging Face AI model
+        prompt = (
+            f"Here is some data for country : {country}, displaying total customer counts over the years. "
+            f"The data is divided into five zones. "
+            f"Provide very concise but valuable key insights in bullet points for this data.\n"
+            f"Data: {chart_data}"
+        )
+
+        # Make API call to the Hugging Face AI model
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
+        response = client.chat.completions.create(
+            model="mistralai/Mistral-Nemo-Instruct-2407",
+            messages=messages,
+            max_tokens=500
+        )
+
+        # Extract the generated insights
+        insights = response.choices[0].message.content
+        return jsonify({'insights': insights})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Helper function to initialize default admin user
 def initialize_admin_user():
