@@ -50,10 +50,17 @@ const CustomerLineChart = ({ chartId }) => {
 
   // Generate insights using HuggingFace
   const generateInsights = async () => {
-    const chartDescription = `Customer Line Chart for ${
-      country || "all countries"
-    }, displaying total customer counts on y-axis and years on x-axis. The data is divided into zones over years. Provide key and very concise insights of the data in bullet points.`;
-    const chartData = customerData;
+    const chartDescription = `Here is some data for country: ${country}, displaying total customer counts over the years. The data is divided into five zones (North, East, West, South and Central). Provide very concise but valuable key insights in bullet points (not more than 5 headings) for this data. Data: ${JSON.stringify(
+      customerData
+    )}"
+ `;
+
+    // Prepare the request payload with the dynamic prompt
+    const payload = {
+      country: country || "all countries", // Pass the selected country
+      chart_data: customerData, // Pass the chart data
+      prompt: chartDescription, // Pass the dynamically generated prompt
+    };
 
     try {
       const response = await fetch("http://localhost:5000/generate-insights", {
@@ -61,10 +68,7 @@ const CustomerLineChart = ({ chartId }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          country: country || "all countries", // Pass the selected country
-          chart_data: chartData, // Pass the chart data
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -88,59 +92,61 @@ const CustomerLineChart = ({ chartId }) => {
   }
 
   const parseInsights = (insights) => {
-    const lines = insights.split("\n");
-    let parsedInsights = [];
-    let currentHeading = "";
+    // Step 1: Remove outer quotes and process escaped newlines
+    const cleanedInsights = insights
+      .replace(/^"|"$/g, "")
+      .replace(/\\n/g, "\n");
+    const lines = cleanedInsights.split("\n");
+
+    const parsedInsights = [];
+    let currentHeading = null;
 
     lines.forEach((line, index) => {
-      // Check if the line starts with a heading (i.e., '- **')
-      if (line.startsWith("- **")) {
-        // Extract the heading text by removing the '- **' and '**' from the string
-        currentHeading = line
-          .slice(4, line.indexOf(":"))
+      const trimmedLine = line.trim();
+
+      // Step 2: Check for headings (e.g., - **Heading**:)
+      if (trimmedLine.startsWith("- **") && trimmedLine.includes(":")) {
+        const headingEndIndex = trimmedLine.indexOf(":");
+        currentHeading = trimmedLine
+          .slice(4, headingEndIndex)
           .replace(/\*/g, "")
           .trim();
 
-        // Add the heading to the parsed insights
+        // Push the heading
         parsedInsights.push(
-          <div key={index} className="mt-2">
-            <strong>- {currentHeading}</strong>
+          <div key={`heading-${index}`} className="mt-4 font-bold text-lg">
+            {currentHeading}
           </div>
         );
 
-        // Add the text following the colon as a regular paragraph
-        const paragraphText = line.slice(line.indexOf(":") + 1).trim();
+        // Handle additional text after the colon
+        const paragraphText = trimmedLine.slice(headingEndIndex + 1).trim();
         if (paragraphText) {
           parsedInsights.push(
-            <div key={`${index}-text`} className="mt-2 text-white">
+            <div key={`paragraph-${index}`} className="mt-2 text-white">
               {paragraphText}
             </div>
           );
         }
-      } else if (line.trim().length > 0) {
-        // For lines that are not empty, treat them as list items under the current heading
-        if (line.startsWith("-")) {
-          // Handle list items
+      }
+      // Step 3: Check for list items (e.g., - Item)
+      else if (trimmedLine.startsWith("-")) {
+        const listItem = trimmedLine.slice(1).trim();
+        if (listItem) {
           parsedInsights.push(
-            <div key={index} className="mt-2">
-              <ul className="ml-4 list-disc">
-                {line
-                  .trim()
-                  .split(" - ")
-                  .map((item, idx) => (
-                    <li key={idx}>{item.trim()}</li>
-                  ))}
-              </ul>
-            </div>
-          );
-        } else {
-          // Handle plain text paragraphs
-          parsedInsights.push(
-            <div key={index} className="mt-2 text-white">
-              {line.trim()}
-            </div>
+            <ul key={`list-${index}`} className="ml-6 list-disc">
+              <li>{listItem}</li>
+            </ul>
           );
         }
+      }
+      // Step 4: Handle plain text
+      else if (trimmedLine.length > 0) {
+        parsedInsights.push(
+          <div key={`text-${index}`} className="mt-2 text-white">
+            {trimmedLine}
+          </div>
+        );
       }
     });
 

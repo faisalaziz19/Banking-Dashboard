@@ -93,21 +93,14 @@ class Customer(db.Model):
 @app.route('/generate-insights', methods=['POST'])
 def generate_insights():
     try:
-        # Extract country name and chart data from the request
+        # Extract country name, chart data, and dynamic prompt from the request
         data = request.json
         country = data.get('country', 'all countries')
         chart_data = data.get('chart_data', {})
+        prompt = data.get('prompt', '')
 
         if not chart_data:
             return jsonify({'error': 'No chart data provided'}), 400
-
-        # Prepare the prompt for the Hugging Face AI model
-        prompt = (
-            f"Here is some data for country : {country}, displaying total customer counts over the years. "
-            f"The data is divided into five zones. "
-            f"Provide very concise but valuable key insights in bullet points for this data.\n"
-            f"Data: {chart_data}"
-        )
 
         # Make API call to the Hugging Face AI model
         messages = [
