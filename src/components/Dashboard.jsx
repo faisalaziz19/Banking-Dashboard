@@ -9,6 +9,7 @@ import api from "../services/api";
 import TransactionLineChart from "./charts/TransactionLineChart";
 import LoanPieChart from "./charts/LoanPieChart";
 import CustomerLineChart from "./charts/CustomerLineChart";
+import CustomerPieCharts from "./charts/CustomerPieCharts";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -127,7 +128,7 @@ const Dashboard = () => {
             </div>
           ) : (
             // <div className="flex-grow p-2 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
-            <div className="flex">
+            <div className="flex flex-wrap">
               {/* Render charts dynamically based on the user's role */}
               {charts.length === 0 ? (
                 <p>No charts available for your role.</p>
@@ -136,7 +137,7 @@ const Dashboard = () => {
                   switch (chart.chart_id) {
                     case 1:
                       return (
-                        <div className="flex flex-wrap h-10">
+                        <div className="flex flex-wrap">
                           <TransactionLineChart
                             key={chart.chart_id}
                             chartId={chart.chart_id}
@@ -145,7 +146,7 @@ const Dashboard = () => {
                       );
                     case 2:
                       return (
-                        <div className="flex flex-wrap h-10">
+                        <div className="flex flex-wrap">
                           <LoanPieChart
                             key={chart.chart_id}
                             chartId={chart.chart_id}
@@ -154,8 +155,17 @@ const Dashboard = () => {
                       );
                     case 3:
                       return (
-                        <div className="flex flex-wrap h-10">
+                        <div className="flex flex-wrap">
                           <CustomerLineChart
+                            key={chart.chart_id}
+                            chartId={chart.chart_id}
+                          />
+                        </div>
+                      );
+                    case 4:
+                      return (
+                        <div className="flex flex-wrap">
+                          <CustomerPieCharts
                             key={chart.chart_id}
                             chartId={chart.chart_id}
                           />

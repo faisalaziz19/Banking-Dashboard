@@ -50,7 +50,7 @@ const CustomerLineChart = ({ chartId }) => {
 
   // Generate insights using HuggingFace
   const generateInsights = async () => {
-    const chartDescription = `Here is some data for country: ${country}, displaying total customer counts over the years. The data is divided into five zones (North, East, West, South and Central). Provide very concise but valuable key insights in bullet points (not more than 5 headings) for this data. Data: ${JSON.stringify(
+    const chartDescription = `Here is some data for country: ${country}, displaying total customer counts over the years. The data is divided into five zones (North, East, West, South and Central). Provide very concise but valuable key insights in bullet points (not more than 4 headings) for this data. Data: ${JSON.stringify(
       customerData
     )}"
  `;
@@ -189,7 +189,7 @@ const CustomerLineChart = ({ chartId }) => {
       {/* Render LineChart with customer data */}
       <LineChart
         width={500}
-        height={250}
+        height={270}
         series={zones.map((zone) => ({
           data: years.map((year) => customerData[year][zone] || 0), // Populate data for each zone per year
           label: zone, // Each line gets a label for the zone
@@ -229,10 +229,10 @@ const CustomerLineChart = ({ chartId }) => {
 
       {/* Insights Section */}
       {showInsights && (
-        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-95 flex justify-center items-center z-10">
-          <div className="p-6 bg-[#171717] rounded-md w-2/3">
+        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+          <div className="bg-[#2C2C2C] p-4 rounded-lg shadow-lg w-1/2">
             <div className="flex justify-between">
-              <div className="text-2xl font-semibold text-white">Insights</div>
+              <div className="text-4xl font-semibold text-white">Insights</div>
               <IconButton
                 onClick={() => setShowInsights(false)}
                 color="inherit"

@@ -205,6 +205,22 @@ const api = {
       return { error: error.message };
     }
   },
+
+  getPieChartData: async (country = null) => {
+    try {
+      const url = country
+        ? `${BASE_URL}/get-pie-chart-data?country=${country}`
+        : `${BASE_URL}/get-pie-chart-data`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch pie chart data");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching pie chart data:", error);
+      return { error: error.message };
+    }
+  },
 };
 
 export default api;

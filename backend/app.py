@@ -508,6 +508,59 @@ def get_customer_chart_data():
         print(f"Error in get-customer-chart-data: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
+@app.route('/api/get-pie-chart-data', methods=['GET'])
+def get_pie_chart_data():
+    try:
+        country_filter = request.args.get('country', None)
+
+        # Fetch customer counts by income level
+        income_query = db.session.query(
+            Customer.incomelevel,
+            func.count(Customer.customerid).label('customer_count')
+        )
+        if country_filter:
+            income_query = income_query.filter(Customer.country == country_filter)
+        income_query = income_query.group_by(Customer.incomelevel)
+        income_result = income_query.all()
+
+        # Process income level data
+        income_data = {
+            "High": 0,
+            "Medium": 0,
+            "Low": 0
+        }
+        for row in income_result:
+            if row.incomelevel in income_data:
+                income_data[row.incomelevel] = row.customer_count
+
+        # Fetch customer counts by segment
+        segment_query = db.session.query(
+            Customer.customersegment,
+            func.count(Customer.customerid).label('customer_count')
+        )
+        if country_filter:
+            segment_query = segment_query.filter(Customer.country == country_filter)
+        segment_query = segment_query.group_by(Customer.customersegment)
+        segment_result = segment_query.all()
+
+        # Process segment data
+        segment_data = {
+            "Retail": 0,
+            "Corporate": 0
+        }
+        for row in segment_result:
+            if row.customersegment in segment_data:
+                segment_data[row.customersegment] = row.customer_count
+
+        # Return combined data
+        return jsonify({
+            "income_data": income_data,
+            "segment_data": segment_data
+        })
+
+    except Exception as e:
+        print(f"Error in get-pie-chart-data: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 if __name__ == '__main__':

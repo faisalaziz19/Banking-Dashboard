@@ -58,7 +58,7 @@ const LoanPieChart = ({ chartId }) => {
       </div>
 
       {/* Fixed size chart container */}
-      <div style={{ height: "250px", width: "320px", position: "relative" }}>
+      <div style={{ height: "270px", width: "350px", position: "relative" }}>
         {/* Conditionally render error or pie chart */}
         {error && (
           <div
@@ -90,8 +90,8 @@ const LoanPieChart = ({ chartId }) => {
                 },
               },
             ]}
-            width={320}
-            height={250}
+            width={350}
+            height={270}
             margin={{ top: 60, right: 10, bottom: 30, left: 10 }}
             slotProps={{
               legend: {
