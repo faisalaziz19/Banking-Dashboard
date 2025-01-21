@@ -4,6 +4,7 @@ import api from "../../services/api"; // Import the method from the API file
 import { IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import { HiOutlineLightBulb } from "react-icons/hi"; // Close icon for the insights overlay
+import { BsStars } from "react-icons/bs";
 
 const CustomerLineChart = ({ chartId }) => {
   const [customerData, setCustomerData] = useState({}); // Store chart data
@@ -114,7 +115,10 @@ const CustomerLineChart = ({ chartId }) => {
 
         // Push the heading
         parsedInsights.push(
-          <div key={`heading-${index}`} className="mt-4 font-bold text-lg">
+          <div
+            key={`heading-${index}`}
+            className="mt-4 text-yellow-200 uppercase font-bold text-lg"
+          >
             {currentHeading}
           </div>
         );
@@ -232,7 +236,12 @@ const CustomerLineChart = ({ chartId }) => {
         <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
           <div className="bg-[#2C2C2C] p-4 rounded-lg shadow-lg w-1/2">
             <div className="flex justify-between">
-              <div className="text-4xl font-semibold text-white">Insights</div>
+              <div className="flex text-yellow-200">
+                <div className="text-3xl font-semibold">Insights</div>
+                <div className="text-3xl">
+                  <BsStars />
+                </div>
+              </div>
               <IconButton
                 onClick={() => setShowInsights(false)}
                 color="inherit"

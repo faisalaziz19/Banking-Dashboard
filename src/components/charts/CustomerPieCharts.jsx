@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { PieChart } from "@mui/x-charts/PieChart"; // Assuming MUI for PieChart
+import { PieChart } from "@mui/x-charts/PieChart"; // Import PieChart
 import api from "../../services/api"; // Import API methods
 import { HiOutlineLightBulb } from "react-icons/hi"; // Icon for insights
 import { IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
+import { pieArcLabelClasses } from "@mui/x-charts";
+import { BsStars } from "react-icons/bs";
 
 const CustomerPieCharts = () => {
   const [customerData, setCustomerData] = useState({}); // Store chart data
@@ -11,6 +13,7 @@ const CustomerPieCharts = () => {
   const [countries, setCountries] = useState([]); // List of countries
   const [insights, setInsights] = useState(""); // Store generated insights
   const [showInsights, setShowInsights] = useState(false); // Toggle visibility of insights
+  const [totalCustomers, setTotalCustomers] = useState(0); // Store total customer count
 
   // Fetch the list of distinct countries from the backend
   useEffect(() => {
@@ -33,18 +36,33 @@ const CustomerPieCharts = () => {
       .then((data) => {
         if (data && Object.keys(data).length > 0) {
           // Transform data for the charts
-          setCustomerData({
-            incomeLevels: Object.entries(data.income_data).map(
-              ([key, value]) => ({
-                label: key,
-                value,
-              })
-            ),
-            segments: Object.entries(data.segment_data).map(([key, value]) => ({
+          const incomeLevels = Object.entries(data.income_data).map(
+            ([key, value]) => ({
               label: key,
               value,
-            })),
-          });
+            })
+          );
+
+          const segments = Object.entries(data.segment_data).map(
+            ([key, value]) => ({
+              label: key,
+              value,
+            })
+          );
+
+          // Set customer data
+          setCustomerData({ incomeLevels, segments });
+
+          // Calculate total customer count (sum of all values in incomeLevels and segments)
+          const totalIncome = incomeLevels.reduce(
+            (acc, item) => acc + item.value,
+            0
+          );
+          const totalSegments = segments.reduce(
+            (acc, item) => acc + item.value,
+            0
+          );
+          setTotalCustomers(totalIncome + totalSegments); // Update total count
         } else {
           console.error("Invalid API response:", data);
         }
@@ -56,7 +74,9 @@ const CustomerPieCharts = () => {
 
   // Generate insights using HuggingFace or an API
   const generateInsights = async () => {
-    const chartDescription = `Here is some data for country: ${country}, displaying income levels (High, Medium and Low) and segments (Retail and Corporate). Provide very concise but valuable key insights in bullet points (not more than 3 headings). Data: ${JSON.stringify(
+    const chartDescription = `Providing you some data for ${country} with total customers : ${
+      totalCustomers / 2
+    }, displaying the count of customers based on income levels (High, Medium and Low) and segments (Retail and Corporate). Provide very concise but key valuable insights with future trend or suggestion on the data in bullet points (not more than 3 headings and make sure the facts are correct logically and mathematically). Format to follow : **Heading** followed by text in bullet point. Here is the Data: ${JSON.stringify(
       customerData
     )}`;
 
@@ -90,11 +110,14 @@ const CustomerPieCharts = () => {
     }
   };
 
-  // Function to parse and format the insights
   const parseInsights = (insights) => {
+    // Clean up the input
     const cleanedInsights = insights
-      .replace(/^"|"$/g, "")
-      .replace(/\\n/g, "\n");
+      .replace(/^"|"$/g, "") // Remove surrounding quotes
+      .replace(/\\n/g, "\n") // Replace escaped newlines
+      .replace(/\\+/g, "") // Remove backslashes
+      .replace(/\n{2,}/g, "\n\n"); // Normalize excessive newlines
+
     const lines = cleanedInsights.split("\n");
 
     const parsedInsights = [];
@@ -103,51 +126,55 @@ const CustomerPieCharts = () => {
     lines.forEach((line, index) => {
       const trimmedLine = line.trim();
 
-      // Check for headings (e.g., - **Heading**:)
-      if (trimmedLine.startsWith("- **") && trimmedLine.includes(":")) {
-        const headingEndIndex = trimmedLine.indexOf(":");
+      // Match and render top-level headings (**Heading:**)
+      if (/^\*\*.+\*\*:/.test(trimmedLine)) {
         currentHeading = trimmedLine
-          .slice(4, headingEndIndex)
-          .replace(/\*/g, "")
+          .replace(/^\*\*|\*\*$/g, "") // Remove surrounding '**' characters
+          .replace(":", "") // Remove the colon after the heading
           .trim();
 
         parsedInsights.push(
-          <div key={`heading-${index}`} className="mt-4 font-bold text-lg">
+          <div
+            key={`heading-${index}`}
+            className="mt-4 font-bold text-lg text-white"
+          >
             {currentHeading}
           </div>
         );
-
-        const paragraphText = trimmedLine.slice(headingEndIndex + 1).trim();
-        if (paragraphText) {
-          parsedInsights.push(
-            <div key={`paragraph-${index}`} className="mt-2 text-white">
-              {paragraphText}
-            </div>
-          );
-        }
       }
-      // Check for list items (e.g., - Item)
+      // Handle bullet points (lines starting with '-')
       else if (trimmedLine.startsWith("-")) {
-        const listItem = trimmedLine.slice(1).trim();
-        if (listItem) {
-          parsedInsights.push(
-            <ul key={`list-${index}`} className="ml-6 list-disc">
-              <li>{listItem}</li>
-            </ul>
-          );
-        }
-      }
-      // Handle plain text
-      else if (trimmedLine.length > 0) {
+        const bulletPoint = trimmedLine.replace(/^-/, "").trim(); // Remove the hyphen and extra space
+
         parsedInsights.push(
-          <div key={`text-${index}`} className="mt-2 text-white">
-            {trimmedLine}
+          <div key={`bullet-${index}`} className="ml-6 mt-2 text-white">
+            • {bulletPoint}
+          </div>
+        );
+      }
+      // Handle text that doesn't match any of the above (normal text)
+      else if (trimmedLine.length > 0) {
+        // Check for any unnecessary '**' markers in the line
+        const cleanLine = trimmedLine.replace(/\*\*/g, "");
+
+        parsedInsights.push(
+          <div
+            key={`paragraph-${index}`}
+            className="mt-2 font-bold text-xl uppercase text-yellow-200"
+          >
+            {cleanLine}
           </div>
         );
       }
     });
 
     return parsedInsights;
+  };
+
+  // Function to calculate the percentage label
+  const getArcLabel = (params, total) => {
+    const percent = (params.value / total) * 100 * 2;
+    return `${percent.toFixed(0)}%`;
   };
 
   // Handle case when there's no data yet
@@ -159,6 +186,9 @@ const CustomerPieCharts = () => {
     <div className="pt-5 pr-5 pl-5 mr-3 mb-3 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
       <div className="flex justify-between items-center">
         <div className="text-xl text-white">Customer Data Analysis</div>
+        <div className="text-white text-center font-semibold">
+          Total Customer Count: {totalCustomers / 2}
+        </div>
         <div className="flex items-center">
           <select
             className="rounded-md bg-[#1C1C1C] text-white"
@@ -200,8 +230,15 @@ const CustomerPieCharts = () => {
                 },
                 cx: 150,
                 cy: 70,
+                arcLabel: (params) => getArcLabel(params, totalCustomers),
               },
             ]}
+            sx={{
+              [`& .${pieArcLabelClasses.root}`]: {
+                fill: "white",
+                fontSize: 14,
+              },
+            }}
             slotProps={{
               legend: {
                 direction: "column",
@@ -235,8 +272,15 @@ const CustomerPieCharts = () => {
                 },
                 cx: 150,
                 cy: 70,
+                arcLabel: (params) => getArcLabel(params, totalCustomers),
               },
             ]}
+            sx={{
+              [`& .${pieArcLabelClasses.root}`]: {
+                fill: "white",
+                fontSize: 14,
+              },
+            }}
             slotProps={{
               legend: {
                 direction: "column",
@@ -254,20 +298,19 @@ const CustomerPieCharts = () => {
         </div>
       </div>
 
-      {/* Display insights */}
+      {/* Insights section */}
       {showInsights && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center"
-          onClick={() => setShowInsights(false)} // Close on overlay click
-        >
-          <div
-            className="bg-[#2C2C2C] p-4 rounded-lg shadow-lg w-1/2"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
-          >
+        <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-[#222222] rounded-lg p-6 w-4/5 md:w-2/3">
             <div className="flex justify-between items-center">
-              <span className="text-white text-4xl">Insights</span>
+              <div className="flex text-yellow-200">
+                <div className="text-3xl font-semibold">Insights</div>
+                <div className="text-3xl">
+                  <BsStars />
+                </div>
+              </div>
               <IconButton onClick={() => setShowInsights(false)}>
-                <MdOutlineClose className="text-white text-xl hover:text-red-600" />
+                <MdOutlineClose className="text-white hover:text-red-600" />
               </IconButton>
             </div>
             <div className="mt-4 text-white">{parseInsights(insights)}</div>
