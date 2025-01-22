@@ -212,11 +212,11 @@ const CustomerPieCharts = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
         {/* Income Level Pie Chart */}
         <div className="bg-none">
           <PieChart
-            width={370}
+            width={350}
             height={250}
             margin={{ top: 45, right: 10, bottom: 30, left: 70 }}
             series={[
@@ -258,7 +258,7 @@ const CustomerPieCharts = () => {
         {/* Segment Pie Chart */}
         <div className="bg-none">
           <PieChart
-            width={370}
+            width={350}
             height={250}
             margin={{ top: 45, right: 10, bottom: 30, left: 70 }}
             series={[

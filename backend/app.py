@@ -47,6 +47,18 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(50), default="Pending")
 
+class Campaign(db.Model):
+    __tablename__ = 'campaigns'
+
+    campaign_id = db.Column(db.Integer, primary_key=True)  # Primary Key
+    country = db.Column(db.String(100), nullable=False)  # Country Name
+    investment = db.Column(db.Numeric(15, 2), nullable=False)  # Investment Amount
+    revenue = db.Column(db.Numeric(15, 2), nullable=False)  # Revenue Amount
+    year = db.Column(db.Integer, nullable=False)  # Campaign Year
+
+    def __repr__(self):
+        return f"<Campaign(campaign_id={self.campaign_id}, country={self.country}, year={self.year})>"
+
 class Chart(db.Model):
     __tablename__ = 'charts'
     chart_id = db.Column(db.Integer, primary_key=True)
@@ -562,6 +574,43 @@ def get_pie_chart_data():
         print(f"Error in get-pie-chart-data: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
+@app.route('/api/get-roi-bar-chart-data', methods=['GET'])
+def get_roi_bar_chart_data():
+    try:
+        # Retrieve optional country filter
+        country_filter = request.args.get('country', None)
+        
+        # Query to fetch ROI data grouped by year
+        roi_query = db.session.query(
+            Campaign.year,
+            func.sum(Campaign.investment).label('total_investment'),
+            func.sum(Campaign.revenue).label('total_revenue')
+        )
+        
+        # Apply country filter if provided
+        if country_filter:
+            roi_query = roi_query.filter(Campaign.country == country_filter)
+        
+        # Group by year and order by year
+        roi_query = roi_query.group_by(Campaign.year).order_by(Campaign.year)
+        
+        # Execute the query
+        roi_data = roi_query.all()
+        
+        # Process data into a JSON-friendly format
+        roi_chart_data = []
+        for row in roi_data:
+            roi_chart_data.append({
+                "year": row.year,
+                "total_investment": row.total_investment,
+                "total_revenue": row.total_revenue,
+            })
+
+        return jsonify(roi_chart_data)
+    
+    except Exception as e:
+        print(f"Error in get-roi-bar-chart-data: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

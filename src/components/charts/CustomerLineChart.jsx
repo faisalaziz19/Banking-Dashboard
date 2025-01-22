@@ -198,6 +198,26 @@ const CustomerLineChart = ({ chartId }) => {
           data: years.map((year) => customerData[year][zone] || 0), // Populate data for each zone per year
           label: zone, // Each line gets a label for the zone
         }))}
+        sx={{
+          //change left yAxis label styles
+          "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
+            fill: "#ffffff",
+          },
+          // change bottom label styles
+          "& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel": {
+            fill: "#ffffff",
+          },
+          // bottomAxis Line Styles
+          "& .MuiChartsAxis-bottom .MuiChartsAxis-line": {
+            stroke: "#ffffff",
+            strokeWidth: "1.5",
+          },
+          // leftAxis Line Styles
+          "& .MuiChartsAxis-left .MuiChartsAxis-line": {
+            stroke: "#ffffff",
+            strokeWidth: "1.5",
+          },
+        }}
         xAxis={[
           {
             scaleType: "point",

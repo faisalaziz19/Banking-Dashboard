@@ -52,6 +52,26 @@ const TransactionLineChart = ({ chartId }) => {
       <LineChart
         width={500}
         height={250}
+        sx={{
+          //change left yAxis label styles
+          "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
+            strokeWidth: "0.4",
+            fill: "#ffffff",
+          },
+          // change bottom label styles
+          "& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel": {
+            strokeWidth: "0.5",
+            fill: "#ffffff",
+          },
+          // bottomAxis Line Styles
+          "& .MuiChartsAxis-bottom .MuiChartsAxis-line": {
+            stroke: "#ffffff",
+          },
+          // leftAxis Line Styles
+          "& .MuiChartsAxis-left .MuiChartsAxis-line": {
+            stroke: "#ffffff",
+          },
+        }}
         series={[
           {
             data: online,

@@ -10,6 +10,7 @@ import TransactionLineChart from "./charts/TransactionLineChart";
 import LoanPieChart from "./charts/LoanPieChart";
 import CustomerLineChart from "./charts/CustomerLineChart";
 import CustomerPieCharts from "./charts/CustomerPieCharts";
+import ROIBarChart from "./charts/ROIBarChart";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -166,6 +167,15 @@ const Dashboard = () => {
                       return (
                         <div className="flex flex-wrap">
                           <CustomerPieCharts
+                            key={chart.chart_id}
+                            chartId={chart.chart_id}
+                          />
+                        </div>
+                      );
+                    case 5:
+                      return (
+                        <div className="flex flex-wrap">
+                          <ROIBarChart
                             key={chart.chart_id}
                             chartId={chart.chart_id}
                           />

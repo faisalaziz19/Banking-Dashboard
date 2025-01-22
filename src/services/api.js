@@ -221,6 +221,22 @@ const api = {
       return { error: error.message };
     }
   },
+
+  getROIBarChartData: async (country = null) => {
+    try {
+      const url = country
+        ? `${BASE_URL}/get-roi-bar-chart-data?country=${country}`
+        : `${BASE_URL}/get-roi-bar-chart-data`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch ROI bar chart data");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching ROI bar chart data:", error);
+      return { error: error.message };
+    }
+  },
 };
 
 export default api;
