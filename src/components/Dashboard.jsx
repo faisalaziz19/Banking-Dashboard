@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
-import ViewSidebarOutlinedIcon from "@mui/icons-material/ViewSidebarOutlined";
+import { ChevronRight } from "lucide-react";
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
@@ -51,13 +51,18 @@ const Dashboard = () => {
           <div className="flex items-center">
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className={`${
-                isSidebarCollapsed ? "mr-10" : "mr-2"
-              } p-2 rounded-md text-white`}
+              className="p-2 rounded-md text-white"
             >
-              <ViewSidebarOutlinedIcon />
+              {/* Chevron icon that rotates */}
+              <ChevronRight
+                size={24}
+                strokeWidth={3}
+                className={`transition-transform duration-300 ${
+                  isSidebarCollapsed ? "rotate-180" : ""
+                }`}
+              />
             </button>
-            <h1 className="text-2xl mr-16 font-semibold">LTIMindtree</h1>
+            <h1 className="text-2xl mr-16 font-semibold">LTIM</h1>
           </div>
           <div className="flex items-center cursor-pointer bg-[#1C1C1C] text-white px-3 py-1 rounded-lg mr-2">
             <div className="flex flex-col">
@@ -80,28 +85,38 @@ const Dashboard = () => {
           <div
             className={`${
               isSidebarCollapsed ? "w-14" : "w-64"
-            } transition-all duration-300 mr-3 inset-0 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] backdrop-blur-[20px] p-4 rounded-lg`}
+            } transition-all duration-300 mr-3 inset-0 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] backdrop-blur-[20px] p-3 rounded-lg`}
           >
             <div className={`flex flex-col h-full`}>
-              {/* Menu Options */}
               <div className="flex flex-col">
+                {/* Dashboard Menu Option */}
                 <Link
                   to="/dashboard"
-                  className="mb-4 cursor-pointer font-extralight"
+                  className={`mb-4 cursor-pointer font-extralight text-xl flex items-center p-1 rounded-md transition-all ${
+                    location.pathname === "/dashboard"
+                      ? "bg-[#6e4576] bg-opacity-40 text-purple-300"
+                      : "text-white hover:bg-[#6e4576] hover:text-white hover:scale-105"
+                  }`}
                 >
-                  <i className="text-lg pr-3">
+                  <i className="text-2xl pr-3">
                     <GridViewOutlinedIcon />
-                  </i>{" "}
+                  </i>
                   {!isSidebarCollapsed && "Dashboard"}
                 </Link>
+
+                {/* User Roles Menu Option (Visible only to Admin) */}
                 {user?.role === "Admin" && (
                   <Link
                     to="/dashboard/userroles"
-                    className="mb-4 cursor-pointer font-extralight"
+                    className={`mb-4 cursor-pointer font-extralight text-xl flex items-center p-1 rounded-md transition-all ${
+                      location.pathname === "/dashboard/userroles"
+                        ? "bg-[#6e4576] bg-opacity-40 text-purple-300"
+                        : "text-white hover:bg-[#6e4576] hover:text-white hover:scale-105"
+                    }`}
                   >
-                    <i className="text-lg pr-3">
+                    <i className="text-lg pr-3 align-top">
                       <PersonOutlineOutlinedIcon />
-                    </i>{" "}
+                    </i>
                     {!isSidebarCollapsed && "User Roles"}
                   </Link>
                 )}
@@ -111,9 +126,13 @@ const Dashboard = () => {
               <div className="mt-auto">
                 <div
                   onClick={logout}
-                  className="cursor-pointer text-red-500 hover:text-red-400 font-extralight"
+                  className={`mb-4 cursor-pointer font-extralight text-xl flex items-center p-1 rounded-md transition-all ${
+                    location.pathname === "/dashboard/userroles"
+                      ? "bg-[#995050] bg-opacity-40 text-red-300"
+                      : "text-red-500 hover:bg-[#5b3333] hover:text-red-300 hover:scale-105"
+                  }`}
                 >
-                  <i className="text-lg pr-3">
+                  <i className="text-lg pr-3 align-top">
                     <LogoutOutlinedIcon />
                   </i>{" "}
                   {!isSidebarCollapsed && "Logout"}

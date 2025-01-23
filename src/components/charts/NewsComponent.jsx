@@ -4,7 +4,7 @@ function NewsComponent() {
   const [news, setNews] = useState([]); // Stores the news data
   const [isLoading, setIsLoading] = useState(false); // Tracks loading state
   const [page, setPage] = useState(1); // Tracks the current page
-  const apiToken = "jOyMGDgw9Mc8sYCAgMRvzcT0PYqkDGGDHLD8cYVH";
+  const apiToken = import.meta.env.VITE_NEWS_API_TOKEN; // API token
   const symbols = "msft,fb"; // Add symbols as needed
   const limit = 3; // Limit the number of news items to fetch
   const language = "en"; // Language code (e.g., "en", "es", "fr")
