@@ -16,7 +16,7 @@
     "@huggingface/inference": "^2.8.1",
     "@mui/icons-material": "^6.1.9",
     "@mui/material": "^6.1.9",
-    "@mui/x-charts": "^7.23.6",
+    "@mui/x-charts": "^7.24.0",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "lucide-react": "^0.473.0",
