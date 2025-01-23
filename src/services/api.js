@@ -129,6 +129,114 @@ const api = {
       throw new Error("Failed to update user name");
     }
   },
+
+  getChartsForUser: async (role) => {
+    try {
+      const response = await fetch(`${BASE_URL}/get-charts?role=${role}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch charts");
+      }
+      const charts = await response.json();
+      return charts;
+    } catch (error) {
+      console.error("Error fetching charts:", error);
+      return [];
+    }
+  },
+
+  getTransactionData: async (year) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/get-transaction-data?year=${year}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch transaction data");
+      }
+      const data = await response.json();
+      return data; // Return the data in the desired format
+    } catch (error) {
+      console.error("Error fetching transaction data:", error);
+      return []; // Return an empty array or some default value if error occurs
+    }
+  },
+
+  getLoanData: async (year) => {
+    try {
+      const response = await fetch(`${BASE_URL}/get-loan-data?year=${year}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.error) {
+          throw new Error(errorData.error); // Throw the error message from the backend
+        }
+      }
+      const data = await response.json();
+      return data; // Return the data in the desired format
+    } catch (error) {
+      console.error("Error fetching loan data:", error);
+      return { error: error.message }; // Return error message to be displayed to the user
+    }
+  },
+
+  getCountries: async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/get-countries`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch countries");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      return { error: error.message };
+    }
+  },
+
+  getCustomerLineChartData: async (country = null) => {
+    try {
+      const url = country
+        ? `${BASE_URL}/get-customer-chart-data?country=${country}`
+        : `${BASE_URL}/get-customer-chart-data`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch chart data");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      return { error: error.message };
+    }
+  },
+
+  getPieChartData: async (country = null) => {
+    try {
+      const url = country
+        ? `${BASE_URL}/get-pie-chart-data?country=${country}`
+        : `${BASE_URL}/get-pie-chart-data`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch pie chart data");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching pie chart data:", error);
+      return { error: error.message };
+    }
+  },
+
+  getROIBarChartData: async (country = null) => {
+    try {
+      const url = country
+        ? `${BASE_URL}/get-roi-bar-chart-data?country=${country}`
+        : `${BASE_URL}/get-roi-bar-chart-data`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch ROI bar chart data");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching ROI bar chart data:", error);
+      return { error: error.message };
+    }
+  },
 };
 
 export default api;
