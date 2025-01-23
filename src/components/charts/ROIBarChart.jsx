@@ -163,7 +163,7 @@ const ROIBarChart = ({ chartId }) => {
 
         <div className="flex items-center">
           <select
-            className="rounded-md bg-[#1C1C1C]"
+            className="rounded-md px-2 py-1 bg-[#1C1C1C]"
             onChange={(e) => setCountry(e.target.value)}
             value={country || ""}
           >

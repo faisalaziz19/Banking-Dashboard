@@ -11,6 +11,8 @@ import LoanPieChart from "./charts/LoanPieChart";
 import CustomerLineChart from "./charts/CustomerLineChart";
 import CustomerPieCharts from "./charts/CustomerPieCharts";
 import ROIBarChart from "./charts/ROIBarChart";
+import CurrencyWidget from "./charts/CurrencyWidget";
+import NewsComponent from "./charts/NewsComponent";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -42,15 +44,15 @@ const Dashboard = () => {
   }, [user]); // Fetch charts when the user is updated
 
   return (
-    <div className="h-full w-full font-[Akshar] bg-[#0C0C0C]">
-      <div className="h-full w-screen flex flex-col backdrop-blur-[20px] p-3">
+    <div className="h-full w-full m-0 overflow-hidden font-[Akshar] bg-[#0C0C0C] p-3">
+      <div className="h-full flex flex-col backdrop-blur-[20px]">
         {/* Top Bar */}
         <div className="flex justify-between items-center inset-0 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] backdrop-blur-[20px] p-[6px] mb-3 rounded-lg">
           <div className="flex items-center">
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
               className={`${
-                isSidebarCollapsed ? "mr-10" : "mr-14"
+                isSidebarCollapsed ? "mr-10" : "mr-2"
               } p-2 rounded-md text-white`}
             >
               <ViewSidebarOutlinedIcon />
@@ -77,7 +79,7 @@ const Dashboard = () => {
           {/* Sidebar */}
           <div
             className={`${
-              isSidebarCollapsed ? "w-14" : "w-60"
+              isSidebarCollapsed ? "w-14" : "w-64"
             } transition-all duration-300 mr-3 inset-0 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] backdrop-blur-[20px] p-4 rounded-lg`}
           >
             <div className={`flex flex-col h-full`}>
@@ -176,6 +178,24 @@ const Dashboard = () => {
                       return (
                         <div className="flex flex-wrap">
                           <ROIBarChart
+                            key={chart.chart_id}
+                            chartId={chart.chart_id}
+                          />
+                        </div>
+                      );
+                    case 6:
+                      return (
+                        <div className="flex flex-wrap">
+                          <CurrencyWidget
+                            key={chart.chart_id}
+                            chartId={chart.chart_id}
+                          />
+                        </div>
+                      );
+                    case 7:
+                      return (
+                        <div className="flex flex-wrap">
+                          <NewsComponent
                             key={chart.chart_id}
                             chartId={chart.chart_id}
                           />

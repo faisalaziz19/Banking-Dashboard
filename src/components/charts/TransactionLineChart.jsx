@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import api from "../../services/api"; // Import the method from the API file
+import { ChevronDown } from "lucide-react";
 
 const TransactionLineChart = ({ chartId }) => {
   const [transactionData, setTransactionData] = useState({
@@ -10,6 +11,7 @@ const TransactionLineChart = ({ chartId }) => {
     creditCard: [],
   });
   const [year, setYear] = useState("2024"); // Default year
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     api
@@ -35,23 +37,44 @@ const TransactionLineChart = ({ chartId }) => {
   }
 
   return (
-    <div className="pt-5 pr-5 pl-5 mr-3 mb-3 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
+    <div className="max-h-[420px] pt-5 pr-5 pl-5 mr-3 mb-3 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
       <div className="flex justify-between">
         <div className="text-xl">Monthly Transactions for {year}</div>
         {/* Dropdown to select year */}
-        <select
-          className="rounded-md bg-[#1C1C1C]"
-          onChange={(e) => setYear(e.target.value)}
-          value={year}
-        >
-          <option value="2022">2022</option>
-          <option value="2023">2023</option>
-          <option value="2024">2024</option>
-        </select>
+        <div className="relative">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center gap-2 bg-[#1C1C1C] px-2 py-1 rounded-md hover:opacity-80 transition-colors"
+          >
+            <span>{year}</span>
+            <ChevronDown
+              size={16}
+              className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {isOpen && (
+            <div className="absolute right-0 mt-2 w-32 bg-[#1C1C1C] opacity-95 rounded-xl shadow-lg py-2 z-10">
+              {["2022", "2023", "2024"].map((yearOption) => (
+                <button
+                  key={yearOption}
+                  onClick={() => {
+                    setYear(yearOption);
+                    setIsOpen(false); // Close the dropdown after selection
+                  }}
+                  className={`w-full px-4 py-2 text-left hover:bg-white/10 
+            ${yearOption === year ? "bg-white/5" : ""}`}
+                >
+                  {yearOption}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       <LineChart
         width={500}
-        height={250}
+        height={340}
         sx={{
           //change left yAxis label styles
           "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
@@ -91,7 +114,6 @@ const TransactionLineChart = ({ chartId }) => {
           legend: {
             direction: "row",
             position: { vertical: "top", horizontal: "middle" },
-            padding: 10,
             labelStyle: {
               fontSize: 14,
               fill: "white",

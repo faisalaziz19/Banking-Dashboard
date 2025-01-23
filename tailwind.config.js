@@ -9,6 +9,13 @@ export default {
         "custom-gradient-alt":
           "linear-gradient(223.8deg, #E1CFE6 1.76%, #C2A0CD 8.68%, #86409B 20.81%, #432068 45.06%, #000035 65.84%, #000000 84.54%)",
       },
+      scrollbarHide: {
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
+        "-ms-overflow-style": "none",
+        "scrollbar-width": "none",
+      },
     },
   },
   plugins: [],
