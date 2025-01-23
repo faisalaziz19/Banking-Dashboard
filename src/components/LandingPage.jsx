@@ -1,30 +1,98 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { InteractiveHoverButton } from "./InteractiveHoverButton";
 
 function LandingPage() {
   return (
-    <div className="justify-center font-[Akshar] h-screen w-screen items-center bg-custom-gradient">
-      <div className="flex justify-center items-center glass-bg-behind-form absolute w-full h-full bg-white/5 backdrop-blur-[20px]">
-        <div className="herosection ml-10 mr-10">
-          <h1 className="font-bold text-[48px] sm:text-[60px] md:text-[80px] lg:text-[100px] text-white">
-            Landing Page of the <br /> Banking Dashboard.
-          </h1>
-          <div className="buttons flex flex-row items-center justify-center mt-5">
-            <Link
-              className="px-4 py-2 border mr-3 border-white bg-white/10 text-white rounded-[10px] hover:bg-white/20"
-              to="/login"
-            >
-              Login
-            </Link>
-            <Link
-              className="px-4 py-2 border border-white bg-white/10 text-white rounded-[10px] hover:bg-white/20"
-              to="/signup"
-            >
-              Signup
-            </Link>
+    <div
+      className="min-h-screen font-[Akshar]"
+      style={{
+        backgroundImage: "url(src/assets/landingPageBg.png)",
+        backgroundSize: "cover",
+      }}
+    >
+      {/* Navigation */}
+      <nav className="fixed w-full mt-4 z-10 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl text-white font-bold">LTIM Bank</span>
+              </div>
+            </div>
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-center space-x-4">
+                <button className="text-lg text-white hover:text-gray-300">
+                  Features
+                </button>
+                <button className="text-lg text-white hover:text-gray-300">
+                  Team
+                </button>
+                <Link
+                  className="px-6 py-2 border mr-3 text-lg text-white border-white rounded-2xl hover:bg-white hover:text-black"
+                  to="/login"
+                >
+                  Login
+                </Link>
+                <Link className="flex text-lg justify-center" to="/signup">
+                  <InteractiveHoverButton
+                    text="Get Started"
+                    className="custom-class"
+                  />
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28">
+          {/* Announcement Banner */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-pink-50 rounded-full px-4 py-2 inline-flex items-center space-x-2">
+              <span className="text-pink-500">🎉 Announcement</span>
+              <span className="text-pink-500">Introducing LTIM Dashboard</span>
+              <span className="text-pink-500">→</span>
+            </div>
+          </div>
+
+          {/* Hero Content */}
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-6xl tracking-tight font-bold text-white mb-8">
+              Data Analytics Dashboard for banking trends, customer behavior and{" "}
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(108deg, #0894ff, #ff2e54 70%, #ff9004)",
+                  WebkitBackgroundClip: "text", // Ensures compatibility with WebKit browsers
+                  WebkitTextFillColor: "transparent", // Ensures text remains transparent
+                }}
+              >
+                AI powered
+              </span>{" "}
+              market insights.
+            </h1>
+            <Link className="flex text-lg justify-center" to="/signup">
+              <InteractiveHoverButton
+                text="Get Started"
+                className="custom-class"
+              />
+            </Link>
+          </div>
+
+          {/* Demo Image */}
+          <div className="mt-16 rounded-lg overflow-hidden shadow-xl">
+            <img
+              src="https://placehold.co/1200x600/png"
+              alt="Demo Interface"
+              className="w-full object-cover"
+            />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
