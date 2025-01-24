@@ -237,6 +237,22 @@ const api = {
       return { error: error.message };
     }
   },
+
+  getChurnRateData: async () => {
+    try {
+      const url = `${BASE_URL}/churn-rate`; // The endpoint that returns churn rate data
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch churn rate data");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching churn rate data:", error);
+      return { error: error.message };
+    }
+  },
 };
 
 export default api;

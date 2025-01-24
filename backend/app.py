@@ -85,6 +85,7 @@ class Account(db.Model):
     customerid = db.Column(db.Integer, db.ForeignKey('customer.customerid'), nullable=False)  # Foreign key reference to Customer
     accounttype = db.Column(db.String(50), nullable=False)  # Type of account (e.g., Savings, Current)
     opendate = db.Column(db.Date, nullable=False)  # Date when the account was opened
+    status = db.Column(db.String(50), nullable=False)  # Status of the account (e.g., Active, Closed)
     # Define relationship to Customer
     customer = db.relationship('Customer', backref='accounts', lazy=True)
 
@@ -611,6 +612,91 @@ def get_roi_bar_chart_data():
     except Exception as e:
         print(f"Error in get-roi-bar-chart-data: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+
+@app.route('/api/churn-rate', methods=['GET'])
+def get_churn_rate():
+    try:
+        # Query to fetch churn rate data based on income level
+        income_level_data = db.session.query(
+            Customer.incomelevel,
+            db.func.count(Account.accountid).label('total_accounts'),
+            db.func.count(db.case((Account.status == 'Closed', 1))).label('closed_accounts'),
+            db.func.round(
+                db.func.count(db.case((Account.status == 'Closed', 1))) * 100.0 / db.func.count(Account.accountid),
+                2
+            ).label('churn_rate')
+        )\
+        .join(Account, Customer.customerid == Account.customerid)\
+        .group_by(Customer.incomelevel)\
+        .all()
+
+        # Query to fetch churn rate data based on customer segment
+        customer_segment_data = db.session.query(
+            Customer.customersegment,
+            db.func.count(Account.accountid).label('total_accounts'),
+            db.func.count(db.case((Account.status == 'Closed', 1))).label('closed_accounts'),
+            db.func.round(
+                db.func.count(db.case((Account.status == 'Closed', 1))) * 100.0 / db.func.count(Account.accountid),
+                2
+            ).label('churn_rate')
+        )\
+        .join(Account, Customer.customerid == Account.customerid)\
+        .group_by(Customer.customersegment)\
+        .all()
+
+        # Query to fetch overall churn rate (not grouped by income level or segment)
+        overall_churn_data = db.session.query(
+            db.func.count(db.case((Account.status == 'Closed', 1))).label('closed_accounts'),
+            db.func.count(Account.accountid).label('total_accounts'),
+            db.func.round(
+                db.func.count(db.case((Account.status == 'Closed', 1))) * 100.0 / db.func.count(Account.accountid),
+                2
+            ).label('churn_rate')
+        ).all()
+
+        # Format income level churn rate data
+        income_level_churn_data = [
+            {
+                'income_level': row.incomelevel,
+                'total_accounts': row.total_accounts,
+                'closed_accounts': row.closed_accounts,
+                'churn_rate': row.churn_rate
+            }
+            for row in income_level_data
+        ]
+
+        # Format customer segment churn rate data
+        customer_segment_churn_data = [
+            {
+                'customer_segment': row.customersegment,
+                'total_accounts': row.total_accounts,
+                'closed_accounts': row.closed_accounts,
+                'churn_rate': row.churn_rate
+            }
+            for row in customer_segment_data
+        ]
+
+        # Format overall churn rate data
+        overall_churn_rate = [
+            {
+                'total_accounts': row.total_accounts,
+                'closed_accounts': row.closed_accounts,
+                'churn_rate': row.churn_rate
+            }
+            for row in overall_churn_data
+        ]
+
+        # Return all three sets of data in a JSON response
+        return jsonify({
+            'income_level_churn_data': income_level_churn_data,
+            'customer_segment_churn_data': customer_segment_churn_data,
+            'overall_churn_rate': overall_churn_rate
+        }), 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'message': 'An error occurred while fetching churn rates'}), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
