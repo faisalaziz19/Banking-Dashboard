@@ -70,8 +70,28 @@ function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center relative font-[Akshar] w-screen h-screen bg-custom-gradient">
+    <div
+      className="flex items-center justify-center relative font-[Akshar] w-screen h-screen"
+      style={{
+        backgroundImage: "url(src/assets/landingPageBg.png)",
+        backgroundSize: "cover",
+      }}
+    >
       <div className="glass-bg-behind-form absolute w-full h-full flex items-center justify-center bg-white/5 backdrop-blur-[20px]">
+        {/* Navigation */}
+        <nav className="top-0 fixed w-full mt-4 z-10 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <span className="text-2xl text-white font-bold">
+                    Bank of LTIM
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
         <form
           className="inset-0 bg-gradient-to-tr from-[rgba(0,0,0,0.2)] via-transparent to-[rgba(244,244,244,0.2)] shadow-[5px_5px_10px_2px_rgba(0,0,0,0.25)] rounded-[20px] p-8"
           style={{ width: "350px" }}
