@@ -17,7 +17,9 @@ function LandingPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <span className="text-2xl text-white font-bold">LTIM Bank</span>
+                <span className="text-2xl text-white font-bold">
+                  Bank of LTIM
+                </span>
               </div>
             </div>
             <div className="hidden md:block">
