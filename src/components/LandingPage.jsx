@@ -17,7 +17,9 @@ function LandingPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <span className="text-2xl text-white font-bold">LTIM Bank</span>
+                <span className="text-2xl text-white font-bold">
+                  Bank of LTIM
+                </span>
               </div>
             </div>
             <div className="hidden md:block">
@@ -51,10 +53,10 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28">
           {/* Announcement Banner */}
           <div className="flex justify-center mb-8">
-            <div className="bg-pink-50 rounded-full px-4 py-2 inline-flex items-center space-x-2">
-              <span className="text-pink-500">🎉 Announcement</span>
-              <span className="text-pink-500">Introducing LTIM Dashboard</span>
-              <span className="text-pink-500">→</span>
+            <div className="bg-white/10 rounded-full px-4 py-2 inline-flex items-center space-x-1">
+              <span className="text-white">🎉 Announcement : </span>
+              <span className="text-white"> Introducing LTIM Dashboard</span>
+              <span className="text-white"> →</span>
             </div>
           </div>
 
@@ -85,11 +87,7 @@ function LandingPage() {
 
           {/* Demo Image */}
           <div className="mt-16 rounded-lg overflow-hidden shadow-xl">
-            <img
-              src="https://placehold.co/1200x600/png"
-              alt="Demo Interface"
-              className="w-full object-cover"
-            />
+            <img src="src/assets/dashboardlayout.png" alt="Demo Interface" />
           </div>
         </div>
       </main>
