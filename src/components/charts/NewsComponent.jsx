@@ -78,7 +78,7 @@ function NewsComponent() {
   };
 
   return (
-    <div className="w-full max-w-[500px] mx-auto bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300 p-5">
+    <div className="w-full max-w-[500px] mx-auto bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300 p-5 mb-3 mr-3">
       <div className="flex justify-between items-center mb-4 px-2">
         <h2 className="text-xl text-white">Latest News</h2>
         <button

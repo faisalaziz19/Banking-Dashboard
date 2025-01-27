@@ -45,7 +45,7 @@ const LoanPieChart = ({ chartId }) => {
   return (
     <div className="max-h-[420px] pt-5 pr-5 pl-5 mr-3 mb-3 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
       <div className="flex justify-between ">
-        <div className="text-xl">Loan Types Distribution for {year}</div>
+        <div className="text-xl">Loan Applications</div>
         {/* Dropdown to select year */}
         <div className="relative">
           <button

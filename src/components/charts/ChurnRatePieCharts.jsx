@@ -1,72 +1,73 @@
 import React, { useState, useEffect } from "react";
-import { PieChart } from "@mui/x-charts/PieChart"; // Import PieChart
-import api from "../../services/api"; // Import API methods
-import { HiOutlineLightBulb } from "react-icons/hi"; // Icon for insights
+import { PieChart } from "@mui/x-charts/PieChart";
+import api from "../../services/api";
+import { HiOutlineLightBulb } from "react-icons/hi";
 import { IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import { pieArcLabelClasses } from "@mui/x-charts";
+import { BsStars } from "react-icons/bs";
 
-const ChurnRatePieChart = () => {
-  const [churnData, setChurnData] = useState({}); // Store chart data
-  const [insights, setInsights] = useState(""); // Store generated insights
-  const [showInsights, setShowInsights] = useState(false); // Toggle visibility of insights
+const ChurnRatePieCharts = () => {
+  const [churnData, setChurnData] = useState({});
+  const [country, setCountry] = useState(null);
+  const [countries, setCountries] = useState([]);
+  const [insights, setInsights] = useState("");
+  const [showInsights, setShowInsights] = useState(false);
 
-  // Fetch churn rate pie chart data
+  // Fetch the list of distinct countries from the backend
   useEffect(() => {
     api
-      .getChurnRateData() // API endpoint to get churn rate pie chart data
+      .getCountries()
       .then((data) => {
-        console.log("API Response Data:", data); // Log the response to inspect the structure
-        if (
-          data &&
-          data.income_level_churn_data &&
-          data.customer_segment_churn_data &&
-          data.overall_churn_rate
-        ) {
-          // Transform data for the charts
-          const incomeLevels = Object.entries(data.income_level_churn_data).map(
+        if (Array.isArray(data)) {
+          setCountries(data);
+        } else {
+          console.error("Expected an array for countries:", data);
+        }
+      })
+      .catch((error) => console.error("Error fetching countries:", error));
+  }, []);
+
+  // Fetch churn rate pie chart data when the country filter changes
+  useEffect(() => {
+    api
+      .getChurnRateData(country)
+      .then((data) => {
+        if (data && Object.keys(data).length > 0) {
+          const incomeLevels = Object.entries(data.income_data).map(
             ([key, value]) => ({
               label: key,
-              value,
+              value: value,
             })
           );
 
-          console.log(incomeLevels);
-
-          const segments = Object.entries(data.customer_segment_churn_data).map(
+          const segments = Object.entries(data.segment_data).map(
             ([key, value]) => ({
               label: key,
-              value,
+              value: value,
             })
           );
 
-          const overall = Object.entries(data.overall_churn_rate).map(
-            ([key, value]) => ({
-              label: key,
-              value,
-            })
-          );
-
-          // Set churn data
-          setChurnData({ incomeLevels, segments, overall });
+          setChurnData({ incomeLevels, segments });
         } else {
           console.error("Invalid API response:", data);
         }
       })
       .catch((error) =>
-        console.error("Error fetching churn rate pie chart data:", error)
+        console.error("Error fetching churn rate data:", error)
       );
-  }, []);
+  }, [country]);
 
-  // Generate insights using HuggingFace or an API
+  // Generate insights (similar to the reference code)
   const generateInsights = async () => {
-    const chartDescription = `Providing you some churn rate data, displaying the churn rates based on income levels (High, Medium, Low), segments (Retail, Corporate), and overall churn. Provide concise and valuable insights in bullet points (not more than 3 headings). Format to follow: **Heading** followed by text in bullet points. Here is the Data: ${JSON.stringify(
+    const chartDescription = `Providing you some data for ${country} with churn rates based on income levels and segments. Provide very concise insights with future suggestion. Format to follow: **Heading** followed by text in bullet points (no subheadings). Here is the Data: ${JSON.stringify(
       churnData
     )}`;
 
     const payload = {
-      chart_data: churnData, // Pass the chart data
-      prompt: chartDescription, // Pass the dynamically generated prompt
+      country: country || "all countries",
+      chart_data: churnData,
+      prompt: chartDescription,
     };
 
     try {
@@ -80,8 +81,8 @@ const ChurnRatePieChart = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setInsights(data.insights); // Update insights state with backend response
-        setShowInsights(true); // Show insights overlay
+        setInsights(data.insights);
+        setShowInsights(true);
       } else {
         const error = await response.json();
         console.error("Error generating insights:", error);
@@ -93,13 +94,13 @@ const ChurnRatePieChart = () => {
     }
   };
 
+  // Parse insights (similar to the reference code)
   const parseInsights = (insights) => {
-    // Clean up the input
     const cleanedInsights = insights
-      .replace(/^"|"$/g, "") // Remove surrounding quotes
-      .replace(/\\n/g, "\n") // Replace escaped newlines
-      .replace(/\\+/g, "") // Remove backslashes
-      .replace(/\n{2,}/g, "\n\n"); // Normalize excessive newlines
+      .replace(/^"|"$/g, "")
+      .replace(/\\n/g, "\n")
+      .replace(/\\+/g, "")
+      .replace(/\n{2,}/g, "\n\n");
 
     const lines = cleanedInsights.split("\n");
 
@@ -109,13 +110,11 @@ const ChurnRatePieChart = () => {
     lines.forEach((line, index) => {
       const trimmedLine = line.trim();
 
-      // Match and render top-level headings (**Heading:**)
       if (/^\*\*.+\*\*:/.test(trimmedLine)) {
         currentHeading = trimmedLine
-          .replace(/^\*\*|\*\*$/g, "") // Remove surrounding '**' characters
-          .replace(":", "") // Remove the colon after the heading
+          .replace(/^\*\*|\*\*$/g, "")
+          .replace(":", "")
           .trim();
-
         parsedInsights.push(
           <div
             key={`heading-${index}`}
@@ -124,22 +123,15 @@ const ChurnRatePieChart = () => {
             {currentHeading}
           </div>
         );
-      }
-      // Handle bullet points (lines starting with '-')
-      else if (trimmedLine.startsWith("-")) {
-        const bulletPoint = trimmedLine.replace(/^-/, "").trim(); // Remove the hyphen and extra space
-
+      } else if (trimmedLine.startsWith("-")) {
+        const bulletPoint = trimmedLine.replace(/^-/, "").trim();
         parsedInsights.push(
           <div key={`bullet-${index}`} className="ml-6 mt-2 text-white">
             • {bulletPoint}
           </div>
         );
-      }
-      // Handle text that doesn't match any of the above (normal text)
-      else if (trimmedLine.length > 0) {
-        // Check for any unnecessary '**' markers in the line
+      } else if (trimmedLine.length > 0) {
         const cleanLine = trimmedLine.replace(/\*\*/g, "");
-
         parsedInsights.push(
           <div
             key={`paragraph-${index}`}
@@ -154,22 +146,30 @@ const ChurnRatePieChart = () => {
     return parsedInsights;
   };
 
-  // Function to calculate the percentage label for each pie chart slice
-  const getArcLabel = (params) => {
-    const percent = (params.value / params.total) * 100;
-    return `${percent.toFixed(0)}%`;
-  };
-
   // Handle case when there's no data yet
-  if (!churnData.incomeLevels || !churnData.segments || !churnData.overall) {
+  if (!churnData.incomeLevels || !churnData.segments) {
     return <div>Loading data...</div>;
   }
 
   return (
-    <div className="pt-5 pr-5 pl-5 mr-3 mb-3 bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
+    <div className="pt-5 pr-5 pl-5 mr-3 mb-3 max-h-[340px] bg-gradient-to-r from-[rgba(126,126,126,0.2)] to-[rgba(173,173,173,0.2)] rounded-lg transition-all duration-300">
       <div className="flex justify-between items-center">
-        <div className="text-xl text-white">Churn Rate Analysis</div>
+        <div className="text-xl text-white">Customer Churn Rate Analysis</div>
         <div className="flex items-center">
+          <select
+            className="rounded-md bg-[#1C1C1C] text-white"
+            onChange={(e) => setCountry(e.target.value)}
+            value={country || ""}
+          >
+            <option value="">All Countries</option>
+            {Array.isArray(countries) &&
+              countries.map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+          </select>
+
           {/* Button to trigger insights generation */}
           <HiOutlineLightBulb
             onClick={generateInsights}
@@ -178,16 +178,16 @@ const ChurnRatePieChart = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-        {/* Income Level Churn Rate Pie Chart */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+        {/* Income Level Pie Chart */}
         <div className="bg-none">
           <PieChart
-            width={350}
+            width={358}
             height={250}
             margin={{ top: 45, right: 10, bottom: 30, left: 70 }}
             series={[
               {
-                data: churnData.incomeLevels, // Properly formatted data
+                data: churnData.incomeLevels,
                 highlightScope: { fade: "global", highlight: "item" },
                 faded: {
                   innerRadius: 30,
@@ -196,7 +196,7 @@ const ChurnRatePieChart = () => {
                 },
                 cx: 150,
                 cy: 70,
-                arcLabel: getArcLabel, // Apply arc label directly
+                arcLabel: (params) => `${params.value.toFixed(1)}%`,
               },
             ]}
             sx={{
@@ -221,7 +221,7 @@ const ChurnRatePieChart = () => {
           </div>
         </div>
 
-        {/* Segment Churn Rate Pie Chart */}
+        {/* Segment Pie Chart */}
         <div className="bg-none">
           <PieChart
             width={350}
@@ -229,7 +229,7 @@ const ChurnRatePieChart = () => {
             margin={{ top: 45, right: 10, bottom: 30, left: 70 }}
             series={[
               {
-                data: churnData.segments, // Properly formatted data
+                data: churnData.segments,
                 highlightScope: { fade: "global", highlight: "item" },
                 faded: {
                   innerRadius: 30,
@@ -238,7 +238,7 @@ const ChurnRatePieChart = () => {
                 },
                 cx: 150,
                 cy: 70,
-                arcLabel: getArcLabel, // Apply arc label directly
+                arcLabel: (params) => `${params.value.toFixed(1)}%`,
               },
             ]}
             sx={{
@@ -260,56 +260,24 @@ const ChurnRatePieChart = () => {
           />
           <div className="text-white text-center">Churn Rate by Segment</div>
         </div>
-
-        {/* Overall Churn Rate Pie Chart */}
-        <div className="bg-none">
-          <PieChart
-            width={350}
-            height={250}
-            margin={{ top: 45, right: 10, bottom: 30, left: 70 }}
-            series={[
-              {
-                data: churnData.overall, // Properly formatted data
-                highlightScope: { fade: "global", highlight: "item" },
-                faded: {
-                  innerRadius: 30,
-                  additionalRadius: -30,
-                  color: "gray",
-                },
-                cx: 150,
-                cy: 70,
-                arcLabel: getArcLabel, // Apply arc label directly
-              },
-            ]}
-            sx={{
-              [`& .${pieArcLabelClasses.root}`]: {
-                fill: "white",
-                fontSize: 14,
-              },
-            }}
-            slotProps={{
-              legend: {
-                direction: "column",
-                position: { vertical: "middle", horizontal: "left" },
-                labelStyle: {
-                  fontSize: 14,
-                  fill: "white",
-                },
-              },
-            }}
-          />
-          <div className="text-white text-center">Overall Churn Rate</div>
-        </div>
       </div>
 
+      {/* Insights section */}
       {showInsights && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-          <div className="bg-white p-5 rounded-lg max-w-lg w-full">
-            <div className="text-right cursor-pointer">
-              <MdOutlineClose onClick={() => setShowInsights(false)} />
+        <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-[#222222] rounded-lg p-6 w-4/5 md:w-2/3">
+            <div className="flex justify-between items-center">
+              <div className="flex text-yellow-200">
+                <div className="text-3xl font-semibold">Insights</div>
+                <div className="text-3xl">
+                  <BsStars />
+                </div>
+              </div>
+              <IconButton onClick={() => setShowInsights(false)}>
+                <MdOutlineClose className="text-white hover:text-red-600" />
+              </IconButton>
             </div>
-            <div className="text-lg font-bold text-black">Insights</div>
-            <div className="mt-4 text-black">{parseInsights(insights)}</div>
+            <div className="mt-4 text-white">{parseInsights(insights)}</div>
           </div>
         </div>
       )}
@@ -317,4 +285,4 @@ const ChurnRatePieChart = () => {
   );
 };
 
-export default ChurnRatePieChart;
+export default ChurnRatePieCharts;

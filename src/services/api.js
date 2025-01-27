@@ -238,15 +238,15 @@ const api = {
     }
   },
 
-  getChurnRateData: async () => {
+  getChurnRateData: async (country = null) => {
     try {
-      const url = `${BASE_URL}/churn-rate`; // The endpoint that returns churn rate data
+      const url = country
+        ? `${BASE_URL}/get-churn-rate-data?country=${country}`
+        : `${BASE_URL}/get-churn-rate-data`;
       const response = await fetch(url);
-
       if (!response.ok) {
         throw new Error("Failed to fetch churn rate data");
       }
-
       return await response.json();
     } catch (error) {
       console.error("Error fetching churn rate data:", error);

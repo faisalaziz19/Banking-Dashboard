@@ -613,90 +613,70 @@ def get_roi_bar_chart_data():
         print(f"Error in get-roi-bar-chart-data: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/api/churn-rate', methods=['GET'])
-def get_churn_rate():
+@app.route('/api/get-churn-rate-data', methods=['GET'])
+def get_churn_rate_data():
     try:
-        # Query to fetch churn rate data based on income level
-        income_level_data = db.session.query(
+        country_filter = request.args.get('country', None)
+
+        # Fetch churn rate by income level
+        income_query = db.session.query(
             Customer.incomelevel,
-            db.func.count(Account.accountid).label('total_accounts'),
-            db.func.count(db.case((Account.status == 'Closed', 1))).label('closed_accounts'),
-            db.func.round(
-                db.func.count(db.case((Account.status == 'Closed', 1))) * 100.0 / db.func.count(Account.accountid),
-                2
-            ).label('churn_rate')
-        )\
-        .join(Account, Customer.customerid == Account.customerid)\
-        .group_by(Customer.incomelevel)\
-        .all()
+            func.count(Customer.customerid).label('total_customers'),
+            func.sum(
+                db.case(
+                    (Account.status == 'Closed', 1),  # Condition and value if true
+                    else_=0  # Value if false
+                )
+            ).label('churned_customers')
+        ).join(Account, Customer.customerid == Account.customerid, isouter=True)
 
-        # Query to fetch churn rate data based on customer segment
-        customer_segment_data = db.session.query(
+        if country_filter:
+            income_query = income_query.filter(Customer.country == country_filter)
+
+        income_query = income_query.group_by(Customer.incomelevel)
+        income_result = income_query.all()
+
+        # Process income level data
+        income_data = {}
+        for row in income_result:
+            if row.incomelevel:
+                churn_rate = (row.churned_customers / row.total_customers) * 100 if row.total_customers > 0 else 0
+                income_data[row.incomelevel] = churn_rate
+
+        # Fetch churn rate by segment
+        segment_query = db.session.query(
             Customer.customersegment,
-            db.func.count(Account.accountid).label('total_accounts'),
-            db.func.count(db.case((Account.status == 'Closed', 1))).label('closed_accounts'),
-            db.func.round(
-                db.func.count(db.case((Account.status == 'Closed', 1))) * 100.0 / db.func.count(Account.accountid),
-                2
-            ).label('churn_rate')
-        )\
-        .join(Account, Customer.customerid == Account.customerid)\
-        .group_by(Customer.customersegment)\
-        .all()
+            func.count(Customer.customerid).label('total_customers'),
+            func.sum(
+                db.case(
+                    (Account.status == 'Closed', 1),  # Condition and value if true
+                    else_=0  # Value if false
+                )
+            ).label('churned_customers')
+        ).join(Account, Customer.customerid == Account.customerid, isouter=True)
 
-        # Query to fetch overall churn rate (not grouped by income level or segment)
-        overall_churn_data = db.session.query(
-            db.func.count(db.case((Account.status == 'Closed', 1))).label('closed_accounts'),
-            db.func.count(Account.accountid).label('total_accounts'),
-            db.func.round(
-                db.func.count(db.case((Account.status == 'Closed', 1))) * 100.0 / db.func.count(Account.accountid),
-                2
-            ).label('churn_rate')
-        ).all()
+        if country_filter:
+            segment_query = segment_query.filter(Customer.country == country_filter)
 
-        # Format income level churn rate data
-        income_level_churn_data = [
-            {
-                'income_level': row.incomelevel,
-                'total_accounts': row.total_accounts,
-                'closed_accounts': row.closed_accounts,
-                'churn_rate': row.churn_rate
-            }
-            for row in income_level_data
-        ]
+        segment_query = segment_query.group_by(Customer.customersegment)
+        segment_result = segment_query.all()
 
-        # Format customer segment churn rate data
-        customer_segment_churn_data = [
-            {
-                'customer_segment': row.customersegment,
-                'total_accounts': row.total_accounts,
-                'closed_accounts': row.closed_accounts,
-                'churn_rate': row.churn_rate
-            }
-            for row in customer_segment_data
-        ]
+        # Process segment data
+        segment_data = {}
+        for row in segment_result:
+            if row.customersegment:
+                churn_rate = (row.churned_customers / row.total_customers) * 100 if row.total_customers > 0 else 0
+                segment_data[row.customersegment] = churn_rate
 
-        # Format overall churn rate data
-        overall_churn_rate = [
-            {
-                'total_accounts': row.total_accounts,
-                'closed_accounts': row.closed_accounts,
-                'churn_rate': row.churn_rate
-            }
-            for row in overall_churn_data
-        ]
-
-        # Return all three sets of data in a JSON response
+        # Return combined data
         return jsonify({
-            'income_level_churn_data': income_level_churn_data,
-            'customer_segment_churn_data': customer_segment_churn_data,
-            'overall_churn_rate': overall_churn_rate
-        }), 200
+            "income_data": income_data,
+            "segment_data": segment_data
+        })
+
     except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({'message': 'An error occurred while fetching churn rates'}), 500
-
-
+        print(f"Error in get-churn-rate-data: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

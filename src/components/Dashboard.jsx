@@ -13,7 +13,7 @@ import CustomerPieCharts from "./charts/CustomerPieCharts";
 import ROIBarChart from "./charts/ROIBarChart";
 import CurrencyWidget from "./charts/CurrencyWidget";
 import NewsComponent from "./charts/NewsComponent";
-import ChurnRatePieChart from "./charts/ChurnRatePieCharts";
+import ChurnRatePieCharts from "./charts/ChurnRatePieCharts";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -224,7 +224,7 @@ const Dashboard = () => {
                     case 8:
                       return (
                         <div className="flex flex-wrap">
-                          <ChurnRatePieChart
+                          <ChurnRatePieCharts
                             key={chart.chart_id}
                             chartId={chart.chart_id}
                           />
