@@ -125,7 +125,7 @@ def generate_insights():
             max_tokens=500
         )
 
-        # Extract the generated insights
+        # Extracting the generated insights
         insights = response.choices[0].message.content
         return jsonify({'insights': insights})
     except Exception as e:
@@ -136,14 +136,14 @@ def initialize_admin_user():
     admin_email = "ayadav1201@gmail.com"
     admin_password = "Admin@123"
     
-    # Check if the admin user already exists
+    # Checking if the admin user already exists
     admin_user = User.query.filter_by(email=admin_email).first()
     
     if not admin_user:
-        # Hash the password
+        # Hashing the password
         hashed_password = bcrypt.hashpw(admin_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        # Create the admin user
+        # Creating the admin user
         admin_user = User(
             full_name="Admin",
             email=admin_email,
@@ -191,19 +191,19 @@ def signup():
     if not re.match(EMAIL_REGEX, email):
         return jsonify({"error": "Invalid email format"}), 400
     
-    # Check if the domain is in the allowed list
+    # Checking if the domain is in the allowed list
     domain = email.split('@')[-1]
     if domain not in ALLOWED_DOMAINS:
         return jsonify({"error": "Enter a valid email"}), 400
 
-    # Check if email already exists
+    # Checking if email already exists
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already registered"}), 400
 
-    # Hash password
+    # Hashing password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    # Create new user
+    # Creating new user
     new_user = User(full_name=full_name, email=email, password=hashed_password.decode('utf-8'))
     db.session.add(new_user)
     db.session.commit()
@@ -234,7 +234,6 @@ def login():
     if user.role == "Pending":
         return jsonify({"error": "Your account is pending approval. Please wait for role assignment."}), 403
 
-    # Create access token
     access_token = create_access_token(identity={
         "email": user.email,
         "role": user.role,

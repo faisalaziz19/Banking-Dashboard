@@ -23,23 +23,11 @@ function LandingPage() {
               </div>
             </div>
             <div className="hidden md:block">
-              <div className="ml-10 flex items-center space-x-4">
-                <button className="text-lg text-white hover:text-gray-300">
-                  Features
-                </button>
-                <button className="text-lg text-white hover:text-gray-300">
-                  Team
-                </button>
-                <Link
-                  className="px-6 py-2 border mr-3 text-lg text-white border-white rounded-2xl hover:bg-white hover:text-black"
-                  to="/login"
-                >
-                  Login
-                </Link>
-                <Link className="flex text-lg justify-center" to="/signup">
+              <div className="ml-10 flex items-center space-x-2">
+                <Link className="flex text-lg justify-center" to="/login">
                   <InteractiveHoverButton
-                    text="Get Started"
-                    className="custom-class"
+                    text="Login"
+                    className="custom-class w-28"
                   />
                 </Link>
               </div>
@@ -51,19 +39,10 @@ function LandingPage() {
       {/* Hero Section */}
       <main className="pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28">
-          {/* Announcement Banner */}
-          <div className="flex justify-center mb-8">
-            <div className="bg-white/10 rounded-full px-4 py-2 inline-flex items-center space-x-1">
-              <span className="text-white">🎉 Announcement : </span>
-              <span className="text-white"> Introducing LTIM Dashboard</span>
-              <span className="text-white"> →</span>
-            </div>
-          </div>
-
           {/* Hero Content */}
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-6xl tracking-tight font-bold text-white mb-8">
-              Data Analytics Dashboard for banking trends, customer behavior and{" "}
+          <div className="text-center max-w-5xl mx-auto">
+            <h1 className="text-7xl tracking-tight font-bold text-white mb-8">
+              Get analytics for banking trends, customer behavior and <br />{" "}
               <span
                 className="bg-clip-text text-transparent"
                 style={{
